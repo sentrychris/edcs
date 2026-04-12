@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Frontier;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\Frontier\FrontierCApiService;

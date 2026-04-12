@@ -16,179 +16,6 @@
         }
     ],
     "paths": {
-        "/auth/register": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Register a new user account",
-                "description": "Register users",
-                "operationId": "6703d7156c265a1e7b47e500d2a16304",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Chris Rowles"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "me@rowles.ch"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "secret123"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User registered — returns a Sanctum bearer token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthToken"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation error"
-                    }
-                }
-            }
-        },
-        "/auth/login": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Log in with email and password",
-                "description": "Login users",
-                "operationId": "a5385ffca73f113abef00ea604d1ca58",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "me@rowles.ch"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Authenticated — returns a Sanctum bearer token",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthToken"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid credentials"
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Revoke all tokens for the authenticated user",
-                "description": "Logout users",
-                "operationId": "0f6715df0d22b69c7e35bd32b4c1fc92",
-                "responses": {
-                    "200": {
-                        "description": "Logged out",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Logged out"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/auth/me": {
-            "get": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Get the authenticated user with commander details",
-                "description": "Fetch authenticated user",
-                "operationId": "37252cdc2ae05f1e2e4fd541e987489d",
-                "responses": {
-                    "200": {
-                        "description": "Authenticated user",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
         "/commander": {
             "put": {
                 "tags": [
@@ -260,7 +87,7 @@
                 ],
                 "summary": "Get Frontier OAuth authorization server metadata",
                 "description": "Returns authorization server info (auth URL, token endpoint, PKCE parameters) for the frontend to construct a login redirect.",
-                "operationId": "f7346ce17227f17c063f397bccb8a6b2",
+                "operationId": "7ed70c132514213362f2fbd4c7e5ca4b",
                 "responses": {
                     "200": {
                         "description": "Authorization server information",
@@ -288,7 +115,7 @@
                 ],
                 "summary": "Handle Frontier SSO OAuth callback",
                 "description": "Exchanges the authorization code for a Frontier access token, creates/confirms the user and commander record, then redirects to the frontend with a cmdr_token HttpOnly cookie.",
-                "operationId": "739117e29868cb3b19770984562889df",
+                "operationId": "3a91c60ec87edaddcb16b4fe591986ed",
                 "parameters": [
                     {
                         "name": "code",
@@ -326,7 +153,7 @@
                 ],
                 "summary": "Get the Frontier-authenticated user via cookie",
                 "description": "Returns the authenticated user and their commander data using the cmdr_token HttpOnly cookie set during the SSO callback.",
-                "operationId": "0652359ccc9991718a0d9345467c4225",
+                "operationId": "677126739767ca1658cc9148a88bf3ec",
                 "responses": {
                     "200": {
                         "description": "Authenticated user with commander data",
@@ -364,7 +191,7 @@
                 ],
                 "summary": "Get the authenticated commander profile from Frontier CAPI",
                 "description": "Fetches the live commander profile from the Frontier Companion API and confirms/updates the stored commander record.",
-                "operationId": "78851a1895864bf6658c189199ba2d72",
+                "operationId": "75b0ae5ced0f52ff1b38b5fbb7fc9b75",
                 "responses": {
                     "200": {
                         "description": "Commander profile",
@@ -400,7 +227,7 @@
                 ],
                 "summary": "Get the commander journal for a given date",
                 "description": "Get all journal entries.",
-                "operationId": "48277be40fc290fb8bc347afc874619f",
+                "operationId": "2f45df852bf0a23bc8c865ad7f5ceea5",
                 "parameters": [
                     {
                         "name": "year",
@@ -2092,10 +1919,6 @@
         }
     },
     "tags": [
-        {
-            "name": "Auth",
-            "description": "Standard email/password authentication"
-        },
         {
             "name": "Frontier Auth",
             "description": "Frontier SSO OAuth 2.0 PKCE authentication"

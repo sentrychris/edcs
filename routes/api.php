@@ -1,9 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CommanderController;
-use App\Http\Controllers\Frontier\FrontierAuthController;
-use App\Http\Controllers\Frontier\FrontierCApiController;
+use App\Http\Controllers\FrontierAuthController;
+use App\Http\Controllers\FrontierCApiController;
 use App\Http\Controllers\GalnetNewsController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\StationController;
@@ -29,22 +28,14 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::prefix('auth')->group(function () {
-    // Standard Auth (internal use only)
-    Route::get('login', fn () => redirect('https://edcs.app'))->name('login');
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('me', [AuthController::class, 'me']);
-        Route::post('logout', [AuthController::class, 'logout']);
-    });
-
     // Frontier Auth
     Route::prefix('frontier')->group(function () {
         Route::get('login', [FrontierAuthController::class, 'login'])->name('frontier.auth.login');
         Route::get('callback', [FrontierAuthController::class, 'callback'])->name('frontier.auth.callback');
         Route::post('me', [FrontierAuthController::class, 'me'])->name('frontier.auth.me');
     });
+    // Redirect named route
+    Route::get('login', fn () => redirect('https://edcs.app'))->name('login');
 });
 
 Route::middleware(['auth:sanctum', 'has.cmdr'])->group(function () {
