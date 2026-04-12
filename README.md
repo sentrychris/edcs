@@ -111,7 +111,7 @@ The ED:CS backend is built with [Laravel](https://laravel.com/) and uses [MySQL]
 
 7. Start the queue worker:
     ```sh
-    ./vendor/bin/sail artisan queue:work --deamon
+    ./vendor/bin/sail artisan queue:work
     ```
 
 8. Seed Galnet news articles:
