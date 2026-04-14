@@ -415,7 +415,7 @@ class EdsmApiService extends ApiService
         }
     }
 
-    private function date($date, $format = 'Y-m-d H:i:s', $minYear = 2013, $maxYear = 2025) {
+    private function date($date, $format = 'Y-m-d H:i:s', $minYear = 2013, $maxYear = 2026) {
         $d = DateTime::createFromFormat($format, $date);
 
         if ($d && $d->format($format) === $date) {
