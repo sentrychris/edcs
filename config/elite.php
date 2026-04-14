@@ -2,10 +2,13 @@
 
 return [
     'eddn' => [
+        // Status - https://eddn.edcd.io/
         'relay' => [
             'listener' => 'tcp://eddn.edcd.io:9500',
         ],
 
+        // Valid schemas. Only messages conforming to the following schemas
+        // will be processed.
         'schemas' => [
             'valid' => [
                 'https://eddn.edcd.io/schemas/approachsettlement/1' => true,
@@ -28,9 +31,11 @@ return [
             ]
         ],
 
+        // Software control list to allow or block messages originating from
+        // various third-party clients
         'software' => [
             'blacklist' => [
-                'GameGlass' => '*',
+                'GameGlass' => '*', // I can't remember why I blacklisted this...
             ],
             'whitelist' => [
                 'E:D Market Connector [Linux]' => '>5.*',
@@ -43,13 +48,16 @@ return [
         ]
     ],
 
+    // Galnet feeds. Please note the RSS feed has been retired in favor of the JSON feed.
     'galnet' => [
         'rss' => 'https://community.elitedangerous.com/galnet-rss',
         'json' => 'https://cms.zaonce.net/en-GB/jsonapi/node/galnet_article?sort=-published_at'
     ],
     
+    // Inara
     'inara' => 'https://inara.cz',
-        
+
+    // EDSM API endpoints
     'edsm' => [
         
         'base_url' => 'https://www.edsm.net/',
@@ -92,6 +100,7 @@ return [
         'status' => 'api-status-v1/elite-server'
     ],
 
+    // Frontier auth configuration
     'frontier' => [
         'auth' => [
             'url' => env('FRONTIER_AUTH_URL'),
