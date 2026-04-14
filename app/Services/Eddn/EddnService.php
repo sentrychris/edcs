@@ -37,11 +37,7 @@ abstract class EddnService
      * @return bool
      */
     public function validateSchemaRef(string $schemaRef) {
-        if (! in_array($schemaRef, $this->schemas["valid"])) {
-            return false;
-        }
-
-        return true;
+        return isset($this->schemas['valid'][$schemaRef]);
     }
     
     /**
