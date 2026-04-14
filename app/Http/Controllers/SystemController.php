@@ -451,38 +451,28 @@ class SystemController extends Controller
     public function searchByInformation(SearchSystemByInformationRequest $request)
     {
         $validated = $request->validated();
-        $relation = 'information';
+        $infoFilters = array_intersect_key($validated, array_flip(['population', 'allegiance', 'government', 'economy', 'security']));
 
         $systems = System::query()
-            ->when($request->has('population'),
-                fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('population', '>=', $validated['population'])
-                )
-            )
-
-            ->when($request->has('allegiance'),
-                fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('allegiance', 'LIKE', $validated['allegiance'].'%')
-                )
-            )
-
-            ->when($request->has('government'),
-                fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('government', 'LIKE', $validated['government'].'%')
-                )
-            )
-
-            ->when(
-                $request->has('economy'),
-                fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('economy', 'LIKE', $validated['economy'].'%')
-                )
-            )
-
-            ->when($request->has('security'),
-                fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('security', 'LIKE', $validated['security'].'%')
-                )
+            ->when(! empty($infoFilters), fn ($query) => $query
+                ->whereHas('information', function ($q) use ($infoFilters) {
+                    $q
+                        ->when(isset($infoFilters['population']),
+                            fn ($q) => $q->where('population', '>=', $infoFilters['population'])
+                        )
+                        ->when(isset($infoFilters['allegiance']),
+                            fn ($q) => $q->where('allegiance', 'LIKE', $infoFilters['allegiance'].'%')
+                        )
+                        ->when(isset($infoFilters['government']),
+                            fn ($q) => $q->where('government', 'LIKE', $infoFilters['government'].'%')
+                        )
+                        ->when(isset($infoFilters['economy']),
+                            fn ($q) => $q->where('economy', 'LIKE', $infoFilters['economy'].'%')
+                        )
+                        ->when(isset($infoFilters['security']),
+                            fn ($q) => $q->where('security', 'LIKE', $infoFilters['security'].'%')
+                        );
+                })
             )
             ->simplePaginate();
 
