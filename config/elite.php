@@ -34,9 +34,7 @@ return [
             ],
             'whitelist' => [
                 'E:D Market Connector [Linux]' => '>5.*',
-                'E:D Market Connector [Linux]' => '>6.*',
                 'E:D Market Connector [Windows]' => '>5.*',
-                'E:D Market Connector [Windows]' => '>6.*',
                 'EDDI' => '>4.*',
                 'EDDiscovery' => '>17.*',
                 'EDDLite' => '>2.*',
