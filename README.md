@@ -8,6 +8,14 @@ The API also integrates with the official Frontier OAuth flow and Companion API 
 
 The intended consumer is the [ED:CS web app](https://edcs.app), but the API is open and [documented](https://api.edcs.app/api/documentation) for public use.
 
+## Table of Contents
+
+- [Dev Requirements](#dev-requirements)
+- [Server Requirements](#server-requirements)
+- [Get Started](#get-started)
+- [Credits](#credits)
+- [Legal](#legal)
+
 ## Dev Requirements
 - Docker
 
@@ -36,7 +44,7 @@ The intended consumer is the [ED:CS web app](https://edcs.app), but the API is o
 - Redis
 - Supervisor
 
-### Quick Start
+## Get Started
 
 1. Clone this repository:
 
@@ -143,4 +151,4 @@ Special thanks to:
 
 "Elite", the Elite logo, the Elite: Dangerous logo, "Frontier" and the Frontier logo are registered trademarks of Frontier Developments plc. All rights reserved. All other trademarks and copyrights are acknowledged as the property of their respective owners.
 
-ED:CS is free, open source software released under the MIT License.
+ED:CS is free, open source software released under the [MIT License](./LICENSE).
