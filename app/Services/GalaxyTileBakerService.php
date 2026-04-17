@@ -42,6 +42,14 @@ class GalaxyTileBakerService
     private const LOD1_TARGET_PER_TILE = 10000;
 
     /**
+     * Cap on concurrently-open LOD 2 tile handles. The galaxy has ~5000 native
+     * sectors, which blows past the typical 1024 file-descriptor ulimit if we
+     * keep every tile open. We LRU-evict to stay under this cap and reopen in
+     * append mode when a previously-evicted tile is written to again.
+     */
+    private const MAX_OPEN_HANDLES = 256;
+
+    /**
      * Bake a fresh tile set under a new version directory.
      *
      * @param  string  $outputRoot  - absolute path to public/galaxy-tiles
@@ -80,9 +88,11 @@ class GalaxyTileBakerService
      */
     private function bakeLod2(string $versionRoot, ?callable $progress): array
     {
-        $tiles = [];
+        // LRU-ordered map of open handles: insertion order reflects recency, so
+        // `array_key_first` gives us the least-recently-used key to evict.
         $handles = [];
         $counts = [];
+        $seen = [];
 
         $cursor = System::select(['id64', 'coords_x', 'coords_y', 'coords_z'])
             ->orderBy('id')
@@ -95,11 +105,30 @@ class GalaxyTileBakerService
             $sz = (int) floor((((float) $system->coords_z) + self::BASE_Z) / self::SECTOR_SIZE);
 
             $key = $sx.'_'.$sy.'_'.$sz;
+            $path = $versionRoot.'/lod2/'.$key.'.bin.tmp';
 
-            if (! isset($handles[$key])) {
-                $handles[$key] = fopen($versionRoot.'/lod2/'.$key.'.bin.tmp', 'wb');
-                fwrite($handles[$key], pack('V', 0)); // count placeholder
-                $counts[$key] = 0;
+            if (isset($handles[$key])) {
+                // Touch: move to most-recently-used position.
+                $fh = $handles[$key];
+                unset($handles[$key]);
+                $handles[$key] = $fh;
+            } else {
+                if (count($handles) >= self::MAX_OPEN_HANDLES) {
+                    $evictKey = array_key_first($handles);
+                    fclose($handles[$evictKey]);
+                    unset($handles[$evictKey]);
+                }
+
+                if (isset($seen[$key])) {
+                    // Reopening an evicted tile: append to the existing file.
+                    $handles[$key] = fopen($path, 'ab');
+                } else {
+                    // First time we've seen this sector: write the count placeholder.
+                    $handles[$key] = fopen($path, 'wb');
+                    fwrite($handles[$key], pack('V', 0));
+                    $counts[$key] = 0;
+                    $seen[$key] = true;
+                }
             }
 
             fwrite($handles[$key], $this->packUint64((int) $system->id64));
@@ -110,16 +139,18 @@ class GalaxyTileBakerService
             }
         }
 
-        foreach ($handles as $key => $fh) {
-            // backfill count header
-            fseek($fh, 0);
-            fwrite($fh, pack('V', $counts[$key]));
+        foreach ($handles as $fh) {
             fclose($fh);
-            rename(
-                $versionRoot.'/lod2/'.$key.'.bin.tmp',
-                $versionRoot.'/lod2/'.$key.'.bin'
-            );
-            $tiles[$key] = $counts[$key];
+        }
+
+        $tiles = [];
+        foreach ($counts as $key => $count) {
+            $path = $versionRoot.'/lod2/'.$key.'.bin.tmp';
+            $fh = fopen($path, 'r+b');
+            fwrite($fh, pack('V', $count));
+            fclose($fh);
+            rename($path, $versionRoot.'/lod2/'.$key.'.bin');
+            $tiles[$key] = $count;
         }
 
         if ($progress) {
