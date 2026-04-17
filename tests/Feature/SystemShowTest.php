@@ -53,7 +53,7 @@ class SystemShowTest extends TestCase
         $this->getJson("/api/systems/{$system->slug}")->assertOk();
 
         // Second request should serve from cache (system can be deleted to prove it)
-        $system->forceDelete();
+        $system->delete();
         $response = $this->getJson("/api/systems/{$system->slug}");
 
         $response->assertOk();
@@ -98,7 +98,7 @@ class SystemShowTest extends TestCase
         });
 
         // Force delete so the controller falls through to EDSM
-        $system->forceDelete();
+        $system->delete();
 
         $response = $this->getJson("/api/systems/{$slug}");
 

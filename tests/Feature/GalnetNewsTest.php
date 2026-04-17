@@ -122,7 +122,7 @@ class GalnetNewsTest extends TestCase
         $response = $this->deleteJson("/api/galnet/news/{$article->id}");
 
         $response->assertNoContent();
-        $this->assertSoftDeleted('galnet_news', ['id' => $article->id]);
+        $this->assertDatabaseMissing('galnet_news', ['id' => $article->id]);
     }
 
     public function test_destroy_returns_404_for_nonexistent_article(): void
@@ -132,7 +132,7 @@ class GalnetNewsTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_soft_deleted_article_is_not_found_via_show(): void
+    public function test_deleted_article_is_not_found_via_show(): void
     {
         $article = GalnetNews::factory()->create();
         $article->delete();
