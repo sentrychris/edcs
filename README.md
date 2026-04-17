@@ -38,7 +38,7 @@ The ED:CS backend is built with [Laravel](https://laravel.com/) and uses [MySQL]
 1. Clone this repository:
 
     ```sh
-    git clone git@gitub.com:sentrychris/edcs.git
+    git clone --recurse-submodules -j8 git@gitub.com:sentrychris/edcs.git
     ```
 
 2. Install dependencies:
