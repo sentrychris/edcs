@@ -1,6 +1,12 @@
 # ED:CS API
 
-ED:CS API. View documentation here: https://api.edcs.app/api/documentation
+ED:CS is a backend API for the game *Elite: Dangerous*, providing a unified read interface over a large catalogue of star systems, celestial bodies, stations, market data, and Galnet news. Data is sourced from community projects.
+
+Endpoints support spatial queries (nearest-system search and A*-based route plotting between systems), filtered system/body/station lookups, and cached statistics.
+
+The API also integrates with the official Frontier OAuth flow and Companion API (cAPI), allowing authenticated commanders to fetch their in-game profile and data. Authentication for first-party clients is handled through Laravel Sanctum, with Frontier acting as the upstream identity provider.
+
+The intended consumer is the [ED:CS web app](https://edcs.app), but the API is open and [documented](https://api.edcs.app/api/documentation) for public use.
 
 ## Dev Requirements
 - Docker
