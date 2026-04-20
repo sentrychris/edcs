@@ -9,8 +9,12 @@ use App\Http\Controllers\MarketController;
 use App\Http\Controllers\SanctumAuthController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\StatisticsController;
-use App\Http\Controllers\SystemBodyController;
 use App\Http\Controllers\SystemController;
+use App\Http\Controllers\SystemBodyController;
+use App\Http\Controllers\SystemLastUpdatedController;
+use App\Http\Controllers\Search\SystemDistanceController;
+use App\Http\Controllers\Search\SystemInformationController;
+use App\Http\Controllers\Search\SystemNavRouteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,13 +71,16 @@ Route::middleware('auth:sanctum')->prefix('frontier')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('systems')->name('systems.')->group(function () {
-    Route::get('last-updated', [SystemController::class, 'getLastUpdated']);
+
+    Route::get('last-updated', SystemLastUpdatedController::class);
+
     Route::prefix('search')->group(function () {
-        Route::get('distance', [SystemController::class, 'searchByDistance']);
-        Route::get('information', [SystemController::class, 'searchByInformation']);
-        Route::get('route', [SystemController::class, 'searchRoute']);
+        Route::get('information', SystemInformationController::class);
+        Route::get('distance', SystemDistanceController::class);
+        Route::get('route', SystemNavRouteController::class);
     });
 });
+
 Route::resource('systems', SystemController::class);
 
 /*
@@ -99,6 +106,7 @@ Route::resource('bodies', SystemBodyController::class);
 Route::prefix('stations')->group(function () {
     Route::get('{slug}/market', [MarketController::class, 'getMarketDataForStation']);
 });
+
 Route::resource('stations', StationController::class);
 
 /*
@@ -106,7 +114,7 @@ Route::resource('stations', StationController::class);
 | /statistics routes
 |--------------------------------------------------------------------------
 */
-Route::get('statistics', [StatisticsController::class, 'index']);
+Route::get('statistics', StatisticsController::class);
 
 /*
 |--------------------------------------------------------------------------

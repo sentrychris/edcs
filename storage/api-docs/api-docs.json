@@ -290,6 +290,103 @@
                 ]
             }
         },
+        "/galaxy/manifest": {
+            "get": {
+                "tags": [
+                    "Galaxy"
+                ],
+                "summary": "Get the galaxy-tile manifest",
+                "description": "Returns the galaxy-map tile manifest (LOD 0/1/2 tile index). Tile URLs in the manifest point at /api/galaxy/tiles/v{N}/...",
+                "operationId": "125b667d7cfd812c89faabf34f302aeb",
+                "responses": {
+                    "200": {
+                        "description": "Galaxy tile manifest",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "version": {
+                                            "type": "integer"
+                                        },
+                                        "generated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "sector_size": {
+                                            "type": "integer"
+                                        },
+                                        "lod1_size": {
+                                            "type": "integer"
+                                        },
+                                        "lod0": {
+                                            "properties": {
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "lod1_url_template": {
+                                            "type": "string"
+                                        },
+                                        "lod2_url_template": {
+                                            "type": "string"
+                                        },
+                                        "lod1_tiles": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "lod2_tiles": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Tiles have not been baked yet"
+                    }
+                }
+            }
+        },
+        "/galaxy/tiles/{path}": {
+            "get": {
+                "tags": [
+                    "Galaxy"
+                ],
+                "summary": "Serve a baked galaxy tile",
+                "description": "Streams a binary tile file. Path must match v{N}/lod0.bin or v{N}/lod{1,2}/{key}.bin.",
+                "operationId": "cc34f1b0af2a037168d5f6bd86f116d2",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Binary tile"
+                    },
+                    "404": {
+                        "description": "Tile not found"
+                    }
+                }
+            }
+        },
         "/galnet/news": {
             "get": {
                 "tags": [
@@ -632,6 +729,311 @@
                 ]
             }
         },
+        "/systems/search/distance": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Find systems within a given distance of a position",
+                "description": "Returns a paginated list of systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided.",
+                "operationId": "4704a33b992c956849d3e6a5fdd5e600",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "query",
+                        "description": "System slug ({id64}-{name}) to use as the search origin",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "10477373803-sol"
+                        }
+                    },
+                    {
+                        "name": "x",
+                        "in": "query",
+                        "description": "Galactic X coordinate (required when slug is not provided)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "y",
+                        "in": "query",
+                        "description": "Galactic Y coordinate (required when slug is not provided)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "z",
+                        "in": "query",
+                        "description": "Galactic Z coordinate (required when slug is not provided)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "ly",
+                        "in": "query",
+                        "description": "Search radius in light years (default: 100, max: 5000)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum results per page (max: 1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Systems within the given distance, each with a calculated distance field",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SystemDistance"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/systems/search/information": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Search systems by political and demographic attributes",
+                "description": "Filters systems by population (minimum), security, government, allegiance, and economy. All text filters are partial-match.",
+                "operationId": "702e80bbd475fe8c74593e1f74b1299d",
+                "parameters": [
+                    {
+                        "name": "population",
+                        "in": "query",
+                        "description": "Minimum population",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 5000000000
+                        }
+                    },
+                    {
+                        "name": "security",
+                        "in": "query",
+                        "description": "Security level (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "high"
+                        }
+                    },
+                    {
+                        "name": "government",
+                        "in": "query",
+                        "description": "Government type (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Democracy"
+                        }
+                    },
+                    {
+                        "name": "allegiance",
+                        "in": "query",
+                        "description": "Allegiance (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Federation"
+                        }
+                    },
+                    {
+                        "name": "economy",
+                        "in": "query",
+                        "description": "Economy type (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Industrial"
+                        }
+                    },
+                    {
+                        "name": "withInformation",
+                        "in": "query",
+                        "description": "Embed political/demographic information",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withBodies",
+                        "in": "query",
+                        "description": "Embed celestial bodies",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withStations",
+                        "in": "query",
+                        "description": "Embed stations and outposts",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of matching systems",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/System"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/systems/search/route": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Find the shortest jump route between two systems",
+                "description": "Computes the shortest route between two systems within the given jump range. Returns an ordered list of waypoints with per-hop and cumulative distances. Results are cached for 24 hours.",
+                "operationId": "6fb108aa18dc9a4d4fcb6f835715cb33",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Origin system slug ({id64}-{name})",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "8216113749-maia"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Destination system slug ({id64}-{name})",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "670685668665-pleiades-sector-ag-n-b7-0"
+                        }
+                    },
+                    {
+                        "name": "ly",
+                        "in": "query",
+                        "description": "Maximum jump range in light years (min: 1, max: 500)",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 40
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ordered list of route waypoints",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SystemRouteWaypoint"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No route found within the given jump range"
+                    }
+                }
+            }
+        },
         "/stations/{slug}": {
             "get": {
                 "tags": [
@@ -694,7 +1096,7 @@
                 ],
                 "summary": "Get aggregate database statistics",
                 "description": "Returns counts of systems, bodies, and stations. Results are cached and refreshed hourly by the scheduler.",
-                "operationId": "ef811ca359bfe342d7b9e6efd3a51876",
+                "operationId": "371f80ab880a0677fb4d4347cf4b69a3",
                 "parameters": [
                     {
                         "name": "flushCache",
@@ -1012,7 +1414,7 @@
                 ],
                 "summary": "Get the most recently updated system",
                 "description": "Returns the system with the latest updated_at timestamp, including its bodies and information. Useful for monitoring data freshness.",
-                "operationId": "f437ce49036c7ba416c3ef4009b625e4",
+                "operationId": "542b9400fea3c5cfc8eb9a61323f002d",
                 "responses": {
                     "200": {
                         "description": "Most recently updated system",
@@ -1026,340 +1428,6 @@
                                     },
                                     "type": "object"
                                 }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/systems/search/distance": {
-            "get": {
-                "tags": [
-                    "System Search"
-                ],
-                "summary": "Find systems within a given distance of a position",
-                "description": "Returns a paginated list of systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided.",
-                "operationId": "ca705a3423f8b2e5bc1e1a60f9d1d01e",
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "query",
-                        "description": "System slug ({id64}-{name}) to use as the search origin",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "10477373803-sol"
-                        }
-                    },
-                    {
-                        "name": "x",
-                        "in": "query",
-                        "description": "Galactic X coordinate (required when slug is not provided)",
-                        "required": false,
-                        "schema": {
-                            "type": "number",
-                            "format": "float",
-                            "example": 0
-                        }
-                    },
-                    {
-                        "name": "y",
-                        "in": "query",
-                        "description": "Galactic Y coordinate (required when slug is not provided)",
-                        "required": false,
-                        "schema": {
-                            "type": "number",
-                            "format": "float",
-                            "example": 0
-                        }
-                    },
-                    {
-                        "name": "z",
-                        "in": "query",
-                        "description": "Galactic Z coordinate (required when slug is not provided)",
-                        "required": false,
-                        "schema": {
-                            "type": "number",
-                            "format": "float",
-                            "example": 0
-                        }
-                    },
-                    {
-                        "name": "ly",
-                        "in": "query",
-                        "description": "Search radius in light years (default: 100, max: 5000)",
-                        "required": false,
-                        "schema": {
-                            "type": "number",
-                            "format": "float",
-                            "example": 100
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "description": "Maximum results per page (max: 1000)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 20
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Page number",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Systems within the given distance, each with a calculated distance field",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/SystemDistance"
-                                            }
-                                        },
-                                        "links": {
-                                            "type": "object"
-                                        },
-                                        "meta": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/systems/search/route": {
-            "get": {
-                "tags": [
-                    "System Search"
-                ],
-                "summary": "Find the shortest jump route between two systems",
-                "description": "Computes the shortest route between two systems within the given jump range. Returns an ordered list of waypoints with per-hop and cumulative distances. Results are cached for 24 hours.",
-                "operationId": "14b61402b4fdb6c2b5e5482e6d0f9239",
-                "parameters": [
-                    {
-                        "name": "from",
-                        "in": "query",
-                        "description": "Origin system slug ({id64}-{name})",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "8216113749-maia"
-                        }
-                    },
-                    {
-                        "name": "to",
-                        "in": "query",
-                        "description": "Destination system slug ({id64}-{name})",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "670685668665-pleiades-sector-ag-n-b7-0"
-                        }
-                    },
-                    {
-                        "name": "ly",
-                        "in": "query",
-                        "description": "Maximum jump range in light years (min: 1, max: 500)",
-                        "required": true,
-                        "schema": {
-                            "type": "number",
-                            "format": "float",
-                            "example": 40
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Ordered list of route waypoints",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/SystemRouteWaypoint"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No route found within the given jump range"
-                    }
-                }
-            }
-        },
-        "/systems/search/information": {
-            "get": {
-                "tags": [
-                    "System Search"
-                ],
-                "summary": "Search systems by political and demographic attributes",
-                "description": "Filters systems by population (minimum), security, government, allegiance, and economy. All text filters are partial-match.",
-                "operationId": "4dcab4488d1eafca0dd463a9eda8208e",
-                "parameters": [
-                    {
-                        "name": "population",
-                        "in": "query",
-                        "description": "Minimum population",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 5000000000
-                        }
-                    },
-                    {
-                        "name": "security",
-                        "in": "query",
-                        "description": "Security level (partial match)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "high"
-                        }
-                    },
-                    {
-                        "name": "government",
-                        "in": "query",
-                        "description": "Government type (partial match)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Democracy"
-                        }
-                    },
-                    {
-                        "name": "allegiance",
-                        "in": "query",
-                        "description": "Allegiance (partial match)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Federation"
-                        }
-                    },
-                    {
-                        "name": "economy",
-                        "in": "query",
-                        "description": "Economy type (partial match)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Industrial"
-                        }
-                    },
-                    {
-                        "name": "withInformation",
-                        "in": "query",
-                        "description": "Embed political/demographic information",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "enum": [
-                                0,
-                                1
-                            ]
-                        }
-                    },
-                    {
-                        "name": "withBodies",
-                        "in": "query",
-                        "description": "Embed celestial bodies",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "enum": [
-                                0,
-                                1
-                            ]
-                        }
-                    },
-                    {
-                        "name": "withStations",
-                        "in": "query",
-                        "description": "Embed stations and outposts",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "enum": [
-                                0,
-                                1
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Paginated list of matching systems",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/System"
-                                            }
-                                        },
-                                        "links": {
-                                            "type": "object"
-                                        },
-                                        "meta": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/systems/id64s": {
-            "get": {
-                "tags": [
-                    "Systems"
-                ],
-                "summary": "Stream the full id64 list for all systems",
-                "description": "Returns a streaming JSON array of every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
-                "operationId": "ae321687d11a3b3f9aaba66972784077",
-                "responses": {
-                    "200": {
-                        "description": "Streamed JSON array: [id64, ...]",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "example": [
-                                    10477373803,
-                                    8216113749
-                                ]
                             }
                         }
                     }
@@ -2135,6 +2203,10 @@
         {
             "name": "Market",
             "description": "Live commodity market data from EDDN"
+        },
+        {
+            "name": "Galaxy",
+            "description": "Galaxy"
         }
     ]
 }

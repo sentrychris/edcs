@@ -9,21 +9,12 @@ use OpenApi\Attributes as OA;
 
 class StatisticsController extends Controller
 {
-    private StatService $statService;
-
-    /**
-     * Constructor
-     */
-    public function __construct(StatService $statService)
-    {
-        $this->statService = $statService;
-    }
-
     /**
      * Get statistics.
      *
-     * Statistics are cached and refreshed every hour through the artisan
-     * scheduler.
+     * @param Request $request
+     * @param StatService $service
+     * @return Response
      */
     #[OA\Get(
         path: '/statistics',
@@ -54,10 +45,10 @@ class StatisticsController extends Controller
             ),
         ]
     )]
-    public function index(Request $request): Response
+    public function __invoke(Request $request, StatService $service): Response
     {
         return response([
-            'data' => $this->statService->fetch('statistics', $request->all()),
+            'data' => $service->fetch('statistics', $request->all()),
         ]);
     }
 }
