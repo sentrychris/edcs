@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\System;
 use App\Models\SystemInformation;
-use App\Services\Edsm\EdsmSystemService;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -77,7 +76,7 @@ class ImportSystemsDumpFileJob implements ShouldQueue
                 'coords_x' => $system->coords->x,
                 'coords_y' => $system->coords->y,
                 'coords_z' => $system->coords->z,
-                'updated_at' => app(EdsmSystemService::class)->formatSystemUpdateTime($system),
+                'updated_at' => formatSystemUpdateTime($system),
             ];
 
             if (property_isset($system, 'mainStar') && $system->mainStar !== '') {

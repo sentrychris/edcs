@@ -93,34 +93,6 @@ abstract class ApiService
     }
 
     /**
-     * Get update time according to various 3rd party formats.
-     */
-    public function formatSystemUpdateTime($system): mixed
-    {
-        // Spansh dumps
-        if (property_isset($system, 'updateTime')
-            && is_string($system->updateTime)
-            && $system->updateTime
-        ) {
-            if (str_contains($system->updateTime, '+')) {
-                return substr($system->updateTime, 0, strpos($system->updateTime, '+'));
-            }
-
-            return $system->updateTime;
-        }
-
-        // EDSM dumps
-        if (property_isset($system, 'updateTime')
-            && is_object($system->updateTime)
-            && $system->updateTime->information
-        ) {
-            return $system->updateTime->information;
-        }
-
-        return now();
-    }
-
-    /**
      * Resolve uri from config
      */
     protected function resolveUri(
