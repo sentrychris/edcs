@@ -13,21 +13,21 @@ class Shipyard extends Model
 
     /**
      * The table associated with the model.
-     * 
+     *
      * @var string - the table name
      */
     protected $table = 'shipyard';
 
     /**
      * Guarded attributes that should not be mass assignable.
-     * 
+     *
      * @var array - the guarded attributes
      */
     protected $guarded = [];
 
     /**
      * Configure the URL slug.
-     * 
+     *
      * @return array - the configuration for the slug
      */
     public function sluggable(): array
@@ -35,8 +35,8 @@ class Shipyard extends Model
         return [
             'slug' => [
                 'source' => ['name'],
-                'separator' => '-'
-            ]
+                'separator' => '-',
+            ],
         ];
     }
 }

@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SystemResource;
 use App\Models\System;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemBodyService;
+use App\Services\Edsm\EdsmSystemInformationService;
 use App\Traits\HasQueryRelations;
 use Illuminate\Support\Facades\Cache;
 use OpenApi\Attributes as OA;
@@ -15,9 +16,6 @@ class SystemLastUpdatedController extends Controller
 
     /**
      * Get the last updated system
-     *
-     * @param EdsmApiService $service
-     * @return SystemResource
      */
     #[OA\Get(
         path: '/systems/last-updated',
@@ -36,24 +34,26 @@ class SystemLastUpdatedController extends Controller
             ),
         ]
     )]
-    public function __invoke(EdsmApiService $service): SystemResource
-    {
+    public function __invoke(
+        EdsmSystemBodyService $bodies,
+        EdsmSystemInformationService $information,
+    ): SystemResource {
         // Map the allowed query parameters to the relations that can be loaded
         // for the system model e.g. withBodies will load bodies for the system
         $this->setQueryRelations([
             'withInformation' => 'information',
-            'withBodies'      => 'bodies',
-            'withStations'    => 'stations',
+            'withBodies' => 'bodies',
+            'withStations' => 'stations',
         ]);
 
         $system = Cache::remember('latest_system', 3600, fn () => System::latest('updated_at')->first());
 
         if ($system->body_count === null && ! $system->bodies()->exists()) {
-            $service->updateSystemBodies($system);
+            $bodies->updateSystemBodies($system);
         }
 
         if (! $system->information()->exists()) {
-            $service->updateSystemInformation($system);
+            $information->updateSystemInformation($system);
         }
 
         $this->loadQueryRelations(

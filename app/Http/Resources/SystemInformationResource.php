@@ -22,8 +22,8 @@ class SystemInformationResource extends JsonResource
             'economy' => $this->economy,
             'controlling_faction' => [
                 'name' => $this->faction,
-                'state' => $this->faction_state
-            ]
+                'state' => $this->faction_state,
+            ],
         ];
     }
 }

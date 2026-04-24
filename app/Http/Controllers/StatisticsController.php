@@ -11,10 +11,6 @@ class StatisticsController extends Controller
 {
     /**
      * Get statistics.
-     *
-     * @param Request $request
-     * @param StatService $service
-     * @return Response
      */
     #[OA\Get(
         path: '/statistics',

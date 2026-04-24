@@ -13,7 +13,7 @@ class FrontierAuthenticated
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -23,16 +23,17 @@ class FrontierAuthenticated
             $accessToken = PersonalAccessToken::findToken($token);
             if ($accessToken && $accessToken->tokenable) {
                 Auth::setUser($accessToken->tokenable);
+
                 return $next($request);
             } else {
                 return response()->json([
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 401);
             }
         }
 
         return response()->json([
-            'message' => 'Unauthorized'
+            'message' => 'Unauthorized',
         ], 401);
     }
 }

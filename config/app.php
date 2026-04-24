@@ -1,5 +1,15 @@
 <?php
 
+use App\Facades\DiscordAlert;
+use App\Providers\ApiServiceProvider;
+use App\Providers\AppServiceProvider;
+use App\Providers\AuthServiceProvider;
+use App\Providers\BroadcastServiceProvider;
+use App\Providers\EventServiceProvider;
+use App\Providers\FrontierAuthProvider;
+use App\Providers\RouteServiceProvider;
+use App\Providers\TelescopeServiceProvider;
+use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
@@ -161,19 +171,19 @@ return [
         /*
          * Package Service Providers...
          */
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+        IdeHelperServiceProvider::class,
 
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        App\Providers\TelescopeServiceProvider::class,
-        App\Providers\ApiServiceProvider::class,
-        App\Providers\FrontierAuthProvider::class,
+        AppServiceProvider::class,
+        AuthServiceProvider::class,
+        BroadcastServiceProvider::class,
+        EventServiceProvider::class,
+        RouteServiceProvider::class,
+        TelescopeServiceProvider::class,
+        ApiServiceProvider::class,
+        FrontierAuthProvider::class,
     ])->toArray(),
 
     /*
@@ -188,11 +198,10 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'DiscordAlert' => App\Facades\DiscordAlert::class,
+        'DiscordAlert' => DiscordAlert::class,
     ])->toArray(),
 
-
     'pagination' => [
-        'limit' => 20
+        'limit' => 20,
     ],
 ];

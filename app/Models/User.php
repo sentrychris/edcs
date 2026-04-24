@@ -36,7 +36,7 @@ class User extends Authenticatable
 
     /**
      * Eager load the commander with the user.
-     * 
+     *
      * @var array - the eager loaded relation
      */
     protected $with = ['frontierUser', 'commander'];
@@ -58,7 +58,7 @@ class User extends Authenticatable
 
     /**
      * Get the commander that belongs to the user.
-     * 
+     *
      * @return HasOne - the commander that belongs to the user
      */
     public function commander(): HasOne

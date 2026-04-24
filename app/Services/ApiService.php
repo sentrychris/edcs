@@ -7,27 +7,17 @@ use Illuminate\Support\Facades\Log;
 
 abstract class ApiService
 {
-    /**
-     * @var array $config
-     */
     protected array $config;
 
-    /**
-     * @var string $category;
-     */
     protected string $category;
 
     /**
-     * @var array $headers
+     * @var array
      */
     protected $headers = [];
 
     /**
      * Set API config
-     * 
-     * @param array $config
-     * 
-     * @return ApiService
      */
     public function setConfig(array $config): ApiService
     {
@@ -38,10 +28,6 @@ abstract class ApiService
 
     /**
      * Set API calling category
-     * 
-     * @param string $category
-     * 
-     * @return ApiService
      */
     public function setCategory(string $category): ApiService
     {
@@ -52,10 +38,6 @@ abstract class ApiService
 
     /**
      * Set API headers
-     * 
-     * @param array $headers
-     * 
-     * @return ApiService
      */
     public function setHeaders(array $headers): ApiService
     {
@@ -66,33 +48,22 @@ abstract class ApiService
 
     /**
      * Set API Header
-     * 
-     * @param string $header
-     * @param string $value
-     * 
-     * @return ApiService
      */
     public function setAPIHeader(string $header, string $value): ApiService
     {
         $this->headers[$header] = $value;
-        
+
         return $this;
     }
 
     /**
      * Make a GET request to a third-party API
-     * 
-     * @param string $key
-     * @param ?string $subkey
-     * @param ?array $params
-     * 
-     * @return mixed
      */
     public function get(string $key, ?string $subkey = null, ?array $params = null): mixed
     {
         $url = $this->config['base_url']
-            . $this->resolveUri($this->category, $key, $subkey)
-            . $this->buildQueryString($params);
+            .$this->resolveUri($this->category, $key, $subkey)
+            .$this->buildQueryString($params);
 
         $response = Http::withHeaders($this->headers)->get($url);
         $status = $response->getStatusCode();
@@ -108,22 +79,16 @@ abstract class ApiService
             return false;
         }
 
-
         return $this->getContents($response, true);
     }
-    
+
     /**
      * Get response content.
-     * 
-     * @param $response
-     * @param bool $decode
-     * 
-     * @return mixed
      */
     public function getContents($response, bool $decode = true): mixed
     {
         $content = $response->getBody()->getContents();
-        
+
         return $decode ? json_decode($content) : $content;
     }
 
@@ -157,12 +122,6 @@ abstract class ApiService
 
     /**
      * Resolve uri from config
-     * 
-     * @param string $section
-     * @param string $key
-     * @param ?string $subKey
-     * 
-     * @return string|false
      */
     protected function resolveUri(
         string $section,
@@ -185,22 +144,18 @@ abstract class ApiService
 
     /**
      * Build query string for request
-     * 
-     * @param ?array $params
-     * 
-     * @return string
      */
     protected function buildQueryString(?array $params = null): string
     {
-        if (!$params) {
+        if (! $params) {
             return '';
         }
 
         $i = 0;
         $template = '';
         foreach ($params as $k => $v) {
-            $template .= ($i === 0 ? '?' : '&') . $k . '=' . $v;
-            ++$i;
+            $template .= ($i === 0 ? '?' : '&').$k.'='.$v;
+            $i++;
         }
 
         return $template;

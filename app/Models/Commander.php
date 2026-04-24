@@ -12,21 +12,21 @@ class Commander extends Model
 
     /**
      * The table associated with the model.
-     * 
+     *
      * @var string - the table name
      */
     protected $table = 'commanders';
 
     /**
      * Guarded attributes that should not be mass assignable.
-     * 
+     *
      * @var array - the guarded attributes
      */
     protected $guarded = [];
 
     /**
      * Get the user that owns the commander.
-     * 
+     *
      * @return BelongsTo - the user that owns the commander
      */
     public function user(): BelongsTo

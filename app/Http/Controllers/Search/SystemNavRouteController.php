@@ -16,10 +16,6 @@ class SystemNavRouteController extends Controller
 {
     /**
      * Find the shortest route between two systems.
-     * 
-     * @param SearchSystemRouteRequest $request
-     * @param NavRouteFinderService $service
-     * @return AnonymousResourceCollection|Response
      */
     #[OA\Get(
         path: '/systems/search/route',

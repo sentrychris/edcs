@@ -53,7 +53,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
             return in_array($user->email, [
                 'crowles.sdx@gmail.com',
                 'c.rowles@versyx.net',
-                'j.nerush@versyx.net'
+                'j.nerush@versyx.net',
             ]);
         });
     }

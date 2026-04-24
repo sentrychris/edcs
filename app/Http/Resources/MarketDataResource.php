@@ -23,15 +23,12 @@ class MarketDataResource extends JsonResource
             'system' => $this->system,
             'commodities' => $this->formatCommodities($this->commodities),
             'prohibited' => $this->prohibited,
-            'last_updated' => $this->last_updated
+            'last_updated' => $this->last_updated,
         ];
     }
 
     /**
      *  Fromat commodities with nice display names.
-     * 
-     * @param array $commodities
-     * @return array
      */
     private function formatCommodities(array $commodities): array
     {

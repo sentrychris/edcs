@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\System;
 use App\Models\SystemInformation;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -27,7 +27,7 @@ class SystemShowTest extends TestCase
 
     public function test_returns_404_when_system_not_found(): void
     {
-        $this->mock(EdsmApiService::class, function ($mock) {
+        $this->mock(EdsmSystemService::class, function ($mock) {
             $mock->shouldReceive('updateSystem')->once()->andReturn(false);
         });
 
@@ -65,8 +65,6 @@ class SystemShowTest extends TestCase
         $system = System::factory()->create();
         SystemInformation::factory()->create(['system_id' => $system->id]);
 
-        $this->mock(EdsmApiService::class);
-
         $response = $this->getJson("/api/systems/{$system->slug}?withInformation=1");
 
         $response->assertOk();
@@ -91,7 +89,7 @@ class SystemShowTest extends TestCase
         $slug = $system->slug;
         $name = $system->name;
 
-        $this->mock(EdsmApiService::class, function ($mock) use ($system) {
+        $this->mock(EdsmSystemService::class, function ($mock) use ($system) {
             $mock->shouldReceive('updateSystem')
                 ->once()
                 ->andReturn($system);

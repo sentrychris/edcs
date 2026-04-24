@@ -11,8 +11,6 @@ abstract class ApiRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -21,10 +19,6 @@ abstract class ApiRequest extends FormRequest
 
     /**
      * Return validation errors.
-     *
-     * @param mixed $validator
-     *
-     * @return mixed
      */
     protected function failedValidation(mixed $validator): mixed
     {

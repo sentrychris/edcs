@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\System;
 use App\Models\SystemBody;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemBodyService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -26,7 +26,7 @@ class RepairCorruptMainStarsCommand extends Command
 
     private const RELATION_KEYS = ['withBodies', 'withFleetCarriers', 'withInformation', 'withStations'];
 
-    public function __construct(private readonly EdsmApiService $edsm)
+    public function __construct(private readonly EdsmSystemBodyService $edsm)
     {
         parent::__construct();
     }

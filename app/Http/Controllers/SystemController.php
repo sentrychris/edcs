@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemBodyService;
+use App\Services\Edsm\EdsmSystemInformationService;
+use App\Services\Edsm\EdsmSystemService;
+use App\Services\Edsm\EdsmSystemStationService;
 use App\Traits\HasQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -20,8 +23,12 @@ class SystemController extends Controller
     /**
      * Constructor
      */
-    public function __construct()
-    {
+    public function __construct(
+        private readonly EdsmSystemService $systems,
+        private readonly EdsmSystemBodyService $bodies,
+        private readonly EdsmSystemInformationService $information,
+        private readonly EdsmSystemStationService $stations,
+    ) {
         // Map the allowed query parameters to the relations that can be loaded
         // for the system model e.g. withBodies will load bodies for the system
         $this->setQueryRelations([
@@ -123,7 +130,7 @@ class SystemController extends Controller
             new OA\Response(response: 404, description: 'System not found'),
         ]
     )]
-    public function show(string $slug, SearchSystemRequest $request, EdsmApiService $service): SystemResource|Response
+    public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
     {
         // Get the request parameters
         $validated = $request->validated();
@@ -154,7 +161,7 @@ class SystemController extends Controller
         if (! $system) {
             // If the system doesn't exist in our database, query EDSM for it
             // and then update our records
-            $system = $service->updateSystem($slug);
+            $system = $this->systems->updateSystem($slug);
         }
 
         // If no system if found, then return a 404 not found response
@@ -172,18 +179,18 @@ class SystemController extends Controller
             if (array_key_exists($query, $validated) && (int) $validated[$query] === 1) {
                 // Check for existing system bodies and update if necessary
                 if ($relation === 'bodies' && ! $system->bodies()->exists() && $system->body_count === null) {
-                    $service->updateSystemBodies($system);
+                    $this->bodies->updateSystemBodies($system);
                 }
 
                 // Check for existing system information and update if necessary
                 if ($relation === 'information' && ! $system->information()->exists()) {
-                    $service->updateSystemInformation($system);
+                    $this->information->updateSystemInformation($system);
                 }
 
                 // Always refresh stations + fleet carriers from EDSM on cache
                 // miss — carriers are mobile so we can't trust stored state.
                 if (($relation === 'stations' || $relation === 'fleetCarriers') && ! $stationsRefreshed) {
-                    $service->updateSystemStations($system);
+                    $this->stations->updateSystemStations($system);
                     $stationsRefreshed = true;
                 }
 

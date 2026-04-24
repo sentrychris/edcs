@@ -13,7 +13,7 @@ class FrontierAuthProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(FrontierAuthService::class, fn() => new FrontierAuthService());
-        $this->app->bind(FrontierCApiService::class, fn() => new FrontierCApiService());
+        $this->app->bind(FrontierAuthService::class, fn () => new FrontierAuthService);
+        $this->app->bind(FrontierCApiService::class, fn () => new FrontierCApiService);
     }
 }

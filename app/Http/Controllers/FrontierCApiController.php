@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Services\Frontier\FrontierCApiService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;

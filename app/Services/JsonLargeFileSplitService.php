@@ -6,17 +6,12 @@ class JsonLargeFileSplitService
 {
     /**
      * Split a JSON file into parts for parallel processing.
-     * 
-     * @param string $filename
-     * @param string $filepath
-     * @param int $parts
-     * @return void
      */
     public function split(string $filename, string $filepath, int $parts): void
     {
         // Calculate the number of JSON objects
         $objectsInFile = 0;
-        $handle = fopen($filepath, "r");
+        $handle = fopen($filepath, 'r');
         if ($handle) {
             // Read each line and count JSON objects
             while (($line = fgets($handle)) !== false) {
@@ -38,11 +33,6 @@ class JsonLargeFileSplitService
 
     /**
      * Split a JSON file into parts based on the number of objects per file.
-     * 
-     * @param string $filename
-     * @param string $filepath
-     * @param int $objectsPerFile
-     * @return void
      */
     private function doSplit(string $filename, string $filepath, int $objectsPerFile): void
     {
@@ -50,7 +40,7 @@ class JsonLargeFileSplitService
         $part = 0;
         $currentObjectCount = 0;
         $outputFile = null;
-        $outputFilePath = "";
+        $outputFilePath = '';
 
         // Remove the opening bracket from the first line
         $firstLine = fgets($file);

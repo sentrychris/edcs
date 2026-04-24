@@ -28,7 +28,7 @@ return [
                 'https://eddn.edcd.io/schemas/navroute/1' => true,
                 'https://eddn.edcd.io/schemas/outfitting/2' => true,
                 'https://eddn.edcd.io/schemas/shipyard/2' => true,
-            ]
+            ],
         ],
 
         // Software control list to allow or block messages originating from
@@ -45,31 +45,30 @@ return [
                 'EDDLite' => '>2.*',
                 'EDO Materials Helper' => '*',
             ],
-        ]
+        ],
     ],
 
     // Galnet feeds. Please note the RSS feed has been retired in favor of the JSON feed.
     'galnet' => [
         'rss' => 'https://community.elitedangerous.com/galnet-rss',
-        'json' => 'https://cms.zaonce.net/en-GB/jsonapi/node/galnet_article?sort=-published_at'
+        'json' => 'https://cms.zaonce.net/en-GB/jsonapi/node/galnet_article?sort=-published_at',
     ],
-    
+
     // Inara
     'inara' => 'https://inara.cz',
 
     // EDSM API endpoints
     'edsm' => [
-        
+
         'base_url' => 'https://www.edsm.net/',
-        
+
         'systems' => [
             'system' => 'api-v1/system',
             'systems' => 'api-v1/systems',
             'sphere' => 'api-v1/sphere-systems',
             'cube' => 'api-v1/cube-systems',
         ],
-        
-        
+
         'system' => [
             'bodies' => 'api-system-v1/bodies',
             'scan-value' => 'api-system-v1/estimated-value',
@@ -81,12 +80,12 @@ return [
                 'market' => 'api-system-v1/stations/market',
                 'shipyard' => 'api-system-v1/stations/shipyard',
                 'outfitting' => 'api-system-v1/stations/outfitting',
-            ]
+            ],
         ],
-            
+
         'journal' => [
             'store' => 'api-journal-v1',
-            'discard' => 'api-journal-v1/disard'
+            'discard' => 'api-journal-v1/disard',
         ],
 
         'commander' => [
@@ -94,10 +93,10 @@ return [
             'last-position' => 'api-logs-v1/get-position',
             'ranks' => 'api-commander-v1/get-ranks',
             'credits' => 'api-commander-v1/get-credits',
-            'materials' => 'api-commander-v1/get-materials'
+            'materials' => 'api-commander-v1/get-materials',
         ],
 
-        'status' => 'api-status-v1/elite-server'
+        'status' => 'api-status-v1/elite-server',
     ],
 
     // Frontier auth configuration
@@ -106,10 +105,10 @@ return [
             'url' => env('FRONTIER_AUTH_URL'),
             'client_id' => env('FRONTIER_CLIENT_ID'),
             'client_key' => env('FRONTIER_CLIENT_KEY'),
-            'scopes' => ['auth', 'capi']
+            'scopes' => ['auth', 'capi'],
         ],
         'capi' => [
             'url' => env('FRONTIER_CAPI_URL'),
-        ]
-    ]
+        ],
+    ],
 ];

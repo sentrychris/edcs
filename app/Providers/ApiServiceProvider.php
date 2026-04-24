@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Services\EdsmApiService;
 use Illuminate\Support\ServiceProvider;
 
 class ApiServiceProvider extends ServiceProvider
@@ -12,6 +11,6 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(EdsmApiService::class, fn() => new EdsmApiService());
+        //
     }
 }

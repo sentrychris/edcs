@@ -6,24 +6,22 @@ use App\Models\GalnetNews;
 use Illuminate\Support\Facades\Http;
 
 class GalnetNewsService extends ApiService
-{  
+{
     /**
      * Import galnet news articles.
-     * 
-     * @return int
      */
     public function import(): int
     {
         $response = Http::get(config('elite.galnet.json'));
         $content = $this->getContents($response);
-        
+
         if ($content) {
             // Get the last added article
             $lastArticle = GalnetNews::orderBy('order_added', 'desc')->first();
             $lastArticleOrder = $lastArticle ? $lastArticle->order_added : 0;
 
             $i = 0;
-            foreach(array_reverse($content->data) as $article) {
+            foreach (array_reverse($content->data) as $article) {
                 $article = $article->attributes;
                 if (GalnetNews::whereTitle($article->title)->exists()) {
                     continue;
@@ -34,13 +32,13 @@ class GalnetNewsService extends ApiService
                     'content' => $article->body->processed,
                     'uploaded_at' => $article->field_galnet_date,
                     'order_added' => ++$lastArticleOrder,
-                    'banner_image' => $i % 2 === 0 ? '/images/sunrise.jpg' : '/images/helios.jpg'
+                    'banner_image' => $i % 2 === 0 ? '/images/sunrise.jpg' : '/images/helios.jpg',
                 ]);
 
                 $article->audio_file = "/audio/galnet-article-id-{$article->id}.mp3";
                 $article->save();
 
-                ++$i;
+                $i++;
             }
 
             return $i;

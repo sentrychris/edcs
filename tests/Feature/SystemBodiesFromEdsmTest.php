@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\System;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemBodyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -60,7 +60,7 @@ class SystemBodiesFromEdsmTest extends TestCase
 
         $this->fakeBodiesResponse([$starWithoutIds, $this->fakePlanet()]);
 
-        app(EdsmApiService::class)->updateSystemBodies($system);
+        app(EdsmSystemBodyService::class)->updateSystemBodies($system);
 
         $this->assertDatabaseHas('systems_bodies', [
             'system_id' => $system->id,
@@ -76,7 +76,7 @@ class SystemBodiesFromEdsmTest extends TestCase
 
         $this->fakeBodiesResponse([$this->fakeStar(), $this->fakePlanet()]);
 
-        app(EdsmApiService::class)->updateSystemBodies($system);
+        app(EdsmSystemBodyService::class)->updateSystemBodies($system);
 
         $this->assertDatabaseHas('systems_bodies', [
             'system_id' => $system->id,

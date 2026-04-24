@@ -7,9 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommanderResource extends JsonResource
 {
-    /**
-     * @var bool
-     */
     private bool $includeAuth = false;
 
     /**
@@ -36,7 +33,7 @@ class CommanderResource extends JsonResource
         if ($this->includeAuth) {
             $resource['api'] = [
                 'edsm' => $this->edsm_api_key,
-                'inara' => $this->inara_api_key
+                'inara' => $this->inara_api_key,
             ];
         }
 

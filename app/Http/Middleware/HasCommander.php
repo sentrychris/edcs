@@ -12,7 +12,7 @@ class HasCommander
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -21,7 +21,7 @@ class HasCommander
         }
 
         return response()->json([
-            'message' => 'You have no associated CMDR'
+            'message' => 'You have no associated CMDR',
         ], JsonResponse::HTTP_BAD_REQUEST);
     }
 }

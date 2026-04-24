@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\System;
 use App\Models\SystemBody;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemBodyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -61,7 +61,7 @@ class RepairCorruptMainStarsCommandTest extends TestCase
         $system = System::factory()->create(['name' => 'Corrupt System', 'slug' => 'corrupt-system']);
         $this->seedCorruptMainStar($system);
 
-        $this->mock(EdsmApiService::class, function ($mock) {
+        $this->mock(EdsmSystemBodyService::class, function ($mock) {
             $mock->shouldNotReceive('updateSystemBodies');
         });
 

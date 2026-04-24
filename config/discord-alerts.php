@@ -1,5 +1,7 @@
 <?php
 
+use Spatie\DiscordAlerts\Jobs\SendToDiscordChannelJob;
+
 return [
     /**
      * Custom config for EDDN
@@ -8,16 +10,16 @@ return [
         'webhook' => env('DISCORD_ALERT_EDDN_LISTENER_WEBHOOK'),
         'embed' => [
             'title' => 'EDDN Listener Updates',
-            'description' => 'EDDN listener restarts every 3 hours.'
-        ]
+            'description' => 'EDDN listener restarts every 3 hours.',
+        ],
     ],
 
     'edsm' => [
         'webhook' => env('DISCORD_ALERT_EDSM_API_WEBHOOK'),
         'embed' => [
             'title' => 'EDSM API Status',
-            'description' => 'EDSM API response connectivity status and failures.'
-        ]
+            'description' => 'EDSM API response connectivity status and failures.',
+        ],
     ],
 
     /*
@@ -39,7 +41,7 @@ return [
      * This job will send the message to Discord. You can extend this
      * job to set timeouts, retries, etc...
      */
-    'job' => Spatie\DiscordAlerts\Jobs\SendToDiscordChannelJob::class,
+    'job' => SendToDiscordChannelJob::class,
 
     /*
      * The queue connection that should be used to send the alert.

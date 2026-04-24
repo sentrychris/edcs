@@ -36,7 +36,7 @@ class SystemStationResource extends JsonResource
                 'shipyard' => $this->shipyard_last_updated,
                 'outfitting' => $this->outfitting_last_updated,
             ],
-            'slug' => $this->slug
+            'slug' => $this->slug,
         ];
     }
 }

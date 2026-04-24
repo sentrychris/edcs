@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Search;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SearchSystemByInformationRequest;
-use App\Models\System;
 use App\Http\Resources\SystemResource;
+use App\Models\System;
 use App\Traits\HasQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
@@ -16,9 +16,6 @@ class SystemInformationController extends Controller
 
     /**
      * Search for systems by information.
-     *
-     * @param SearchSystemByInformationRequest $request
-     * @return AnonymousResourceCollection
      */
     #[OA\Get(
         path: '/systems/search/information',
@@ -55,8 +52,8 @@ class SystemInformationController extends Controller
         // for the system model e.g. withBodies will load bodies for the system
         $this->setQueryRelations([
             'withInformation' => 'information',
-            'withBodies'      => 'bodies',
-            'withStations'    => 'stations',
+            'withBodies' => 'bodies',
+            'withStations' => 'stations',
         ]);
 
         $validated = $request->validated();

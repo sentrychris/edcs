@@ -10,11 +10,8 @@ use OpenApi\Attributes as OA;
 
 class SystemDistanceController extends Controller
 {
-    
     /**
      * Find systems by distance in light years.
-     * 
-     * @param SearchSystemByDistanceRequest $request
      */
     #[OA\Get(
         path: '/systems/search/distance',

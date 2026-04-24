@@ -2,8 +2,8 @@
 
 namespace App\Services\Eddn;
 
-use App\Models\System;
 use App\Facades\DiscordAlert;
+use App\Models\System;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -11,27 +11,25 @@ class EddnMarketService extends EddnService
 {
     /**
      * Import market data through EDDN.
-     * 
-     * @param array $batch
+     *
      * @return void
      */
-    public function process(array $batch) {
+    public function process(array $batch)
+    {
         $this->updateMarketData($batch);
     }
 
     /**
      * Cache system names with their ID64s.
-     * 
-     * @param array $batch
+     *
      * @return void
      */
     public function updateMarketData(array $batch)
     {
-        foreach ($batch["messages"] as $receivedMessage)
-        {
+        foreach ($batch['messages'] as $receivedMessage) {
             try {
                 // Check the software name and version
-                if (! $this->isSoftwareAllowed($receivedMessage["header"])) {
+                if (! $this->isSoftwareAllowed($receivedMessage['header'])) {
                     continue;
                 }
 
@@ -45,7 +43,7 @@ class EddnMarketService extends EddnService
 
                     $system = System::whereName($message['systemName'])->first();
                     if ($system && isset($message['stationName']) && isset($message['commodities'])) {
-                        $station = str_replace(" ", "_", $message['stationName']);
+                        $station = str_replace(' ', '_', $message['stationName']);
                         $commodities = $message['commodities'];
                         $prohibited = isset($message['prohibited']) ? $message['prohibited'] : [];
 
@@ -54,12 +52,12 @@ class EddnMarketService extends EddnService
                             'system' => $system->name,
                             'commodities' => $commodities,
                             'prohibited' => $prohibited,
-                            'last_updated' => now()->toISOString()
+                            'last_updated' => now()->toISOString(),
                         ]));
                     }
                 }
             } catch (\Exception $e) {
-                $message = "Failed to insert market data";
+                $message = 'Failed to insert market data';
                 Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
                 DiscordAlert::eddn(self::class, $message.': '.$e->getMessage(), false);
             }

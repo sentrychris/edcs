@@ -66,6 +66,7 @@ class ImportDumpFileCommand extends Command
             $parts = (int) $this->ask('How many parts should the file be split into?', 16);
             if ($parts < 2) {
                 $this->error('Split parts must be at least 2.');
+
                 return;
             }
             $this->jsonLargeFileSplitService->split($filename, $filepath, $parts);
@@ -87,8 +88,6 @@ class ImportDumpFileCommand extends Command
     /**
      * Dispatch a job to process the file.
      *
-     * @param string $type
-     * @param string $filename
      * @return void
      */
     private function dispatchJob(string $type, string $filename)

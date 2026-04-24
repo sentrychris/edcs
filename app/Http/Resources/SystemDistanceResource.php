@@ -16,7 +16,7 @@ class SystemDistanceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'id64'=> $this->id64,
+            'id64' => $this->id64,
             'name' => $this->name,
             'information' => new SystemInformationResource($this->whenLoaded('information')),
             'coords' => ['x' => $this->coords_x, 'y' => $this->coords_y, 'z' => $this->coords_z],

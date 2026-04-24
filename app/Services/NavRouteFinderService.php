@@ -27,13 +27,13 @@ class NavRouteFinderService
         $fromCoords = [
             'x' => (float) $from->coords_x,
             'y' => (float) $from->coords_y,
-            'z' => (float) $from->coords_z
+            'z' => (float) $from->coords_z,
         ];
 
         $toCoords = [
             'x' => (float) $to->coords_x,
             'y' => (float) $to->coords_y,
-            'z' => (float) $to->coords_z
+            'z' => (float) $to->coords_z,
         ];
 
         // Lightweight node store: id => [x, y, z]  (no Eloquent models during search)

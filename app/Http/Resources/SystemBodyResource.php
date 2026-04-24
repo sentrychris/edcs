@@ -30,7 +30,7 @@ class SystemBodyResource extends JsonResource
             'absolute_magnitude' => $this->absolute_magnitude,
             'discovery' => [
                 'commander' => $this->discovered_by,
-                'date' => $this->discovered_at
+                'date' => $this->discovered_at,
             ],
             'system' => new SystemResource($this->whenLoaded('system')),
             'radius' => $this->radius,
@@ -51,11 +51,11 @@ class SystemBodyResource extends JsonResource
                 'orbital_period' => $this->orbital_period,
                 'orbital_eccentricity' => $this->orbital_eccentricity,
                 'orbital_inclination' => $this->orbital_inclination,
-                'arg_of_periapsis' => $this->arg_of_periapsis
+                'arg_of_periapsis' => $this->arg_of_periapsis,
             ],
             'rings' => $this->rings,
             'parents' => $this->parents,
-            'slug' => $this->slug
+            'slug' => $this->slug,
         ];
     }
 }

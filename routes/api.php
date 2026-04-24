@@ -7,14 +7,14 @@ use App\Http\Controllers\GalaxyController;
 use App\Http\Controllers\GalnetNewsController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\SanctumAuthController;
-use App\Http\Controllers\StationController;
-use App\Http\Controllers\StatisticsController;
-use App\Http\Controllers\SystemController;
-use App\Http\Controllers\SystemBodyController;
-use App\Http\Controllers\SystemLastUpdatedController;
 use App\Http\Controllers\Search\SystemDistanceController;
 use App\Http\Controllers\Search\SystemInformationController;
 use App\Http\Controllers\Search\SystemNavRouteController;
+use App\Http\Controllers\StationController;
+use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\SystemBodyController;
+use App\Http\Controllers\SystemController;
+use App\Http\Controllers\SystemLastUpdatedController;
 use Illuminate\Support\Facades\Route;
 
 /*

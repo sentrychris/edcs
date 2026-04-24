@@ -22,7 +22,7 @@ return [
     'allowed_origins' => [
         '*',
         'http://localhost:4201',
-        'https://edcs.app'
+        'https://edcs.app',
     ],
 
     'allowed_origins_patterns' => [],

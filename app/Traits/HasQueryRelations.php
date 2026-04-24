@@ -12,8 +12,6 @@ trait HasQueryRelations
 
     /**
      * Get the query relations.
-     *
-     * @return array
      */
     public function getQueryRelations(): array
     {
@@ -24,7 +22,6 @@ trait HasQueryRelations
      * Set the query relations.
      *
      * @param array
-     * @return void
      */
     public function setQueryRelations(array $queryRelations): void
     {
@@ -33,17 +30,15 @@ trait HasQueryRelations
 
     /**
      * Load relations based on query.
-     * 
-     * @param array $params
-     * @param Model|LengthAwarePaginator|Paginator $data
+     *
      * @return Model|LengthAwarePaginator|Paginator $data
      */
     public function loadQueryRelations(
         array $params,
-        Model | LengthAwarePaginator | Paginator $data
-    ): Model | LengthAwarePaginator | Paginator {
+        Model|LengthAwarePaginator|Paginator $data
+    ): Model|LengthAwarePaginator|Paginator {
         foreach ($this->queryRelations as $query => $relation) {
-            if (array_key_exists($query, $params) && (int)$params[$query] === 1) {
+            if (array_key_exists($query, $params) && (int) $params[$query] === 1) {
                 $data->load($relation);
             }
         }

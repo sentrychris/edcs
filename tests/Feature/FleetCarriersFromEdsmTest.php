@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\FleetCarrier;
 use App\Models\System;
 use App\Models\SystemStation;
-use App\Services\EdsmApiService;
+use App\Services\Edsm\EdsmSystemStationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -17,7 +17,7 @@ class FleetCarriersFromEdsmTest extends TestCase
     /**
      * Fake EDSM /api-system-v1/stations response containing one stationary
      * station and one fleet carrier, so the routing logic in
-     * EdsmApiService::updateSystemStations can be exercised end-to-end.
+     * EdsmSystemStationService::updateSystemStations can be exercised end-to-end.
      */
     private function fakeStationsResponse(array $stations): void
     {
@@ -82,7 +82,7 @@ class FleetCarriersFromEdsmTest extends TestCase
 
         $this->fakeStationsResponse([$this->fakeStation(), $this->fakeCarrier()]);
 
-        app(EdsmApiService::class)->updateSystemStations($system);
+        app(EdsmSystemStationService::class)->updateSystemStations($system);
 
         $this->assertDatabaseCount('systems_stations', 1);
         $this->assertDatabaseHas('systems_stations', [
@@ -114,7 +114,7 @@ class FleetCarriersFromEdsmTest extends TestCase
         // EDSM now reports the same carrier at system B
         $this->fakeStationsResponse([$this->fakeCarrier()]);
 
-        app(EdsmApiService::class)->updateSystemStations($systemB);
+        app(EdsmSystemStationService::class)->updateSystemStations($systemB);
 
         $this->assertDatabaseCount('fleet_carriers', 1);
         $this->assertDatabaseHas('fleet_carriers', [
@@ -136,7 +136,7 @@ class FleetCarriersFromEdsmTest extends TestCase
         // EDSM response for this system no longer includes the leftover carrier
         $this->fakeStationsResponse([$this->fakeCarrier()]);
 
-        app(EdsmApiService::class)->updateSystemStations($system);
+        app(EdsmSystemStationService::class)->updateSystemStations($system);
 
         $this->assertDatabaseMissing('fleet_carriers', ['id' => $leftover->id]);
         $this->assertDatabaseHas('fleet_carriers', [
@@ -155,7 +155,7 @@ class FleetCarriersFromEdsmTest extends TestCase
 
         // Avoid a real EDSM call — the cache-miss path will still invoke
         // updateSystemStations for this request because withFleetCarriers=1.
-        $this->mock(EdsmApiService::class, function ($mock) {
+        $this->mock(EdsmSystemStationService::class, function ($mock) {
             $mock->shouldReceive('updateSystemStations')->andReturnNull();
         });
 
@@ -171,7 +171,7 @@ class FleetCarriersFromEdsmTest extends TestCase
         $system = System::factory()->create();
         SystemStation::factory()->create(['system_id' => $system->id]);
 
-        $this->mock(EdsmApiService::class, function ($mock) {
+        $this->mock(EdsmSystemStationService::class, function ($mock) {
             $mock->shouldReceive('updateSystemStations')->once();
         });
 
@@ -182,7 +182,7 @@ class FleetCarriersFromEdsmTest extends TestCase
     {
         $system = System::factory()->create();
 
-        $this->mock(EdsmApiService::class, function ($mock) {
+        $this->mock(EdsmSystemStationService::class, function ($mock) {
             $mock->shouldReceive('updateSystemStations')->once();
         });
 
