@@ -70,4 +70,60 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
+#[OA\Schema(
+    schema: 'MarketCommodityListing',
+    properties: [
+        new OA\Property(
+            property: 'station',
+            properties: [
+                new OA\Property(property: 'id', type: 'integer', example: 1),
+                new OA\Property(property: 'name', type: 'string', example: 'Daedalus'),
+                new OA\Property(property: 'type', type: 'string', example: 'Orbis Starport'),
+                new OA\Property(property: 'slug', type: 'string', example: '128016384-daedalus'),
+                new OA\Property(property: 'distance_to_arrival', type: 'number', format: 'float', example: 508.0),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(
+            property: 'system',
+            properties: [
+                new OA\Property(property: 'id64', type: 'integer', example: 10477373803),
+                new OA\Property(property: 'name', type: 'string', example: 'Sol'),
+                new OA\Property(property: 'slug', type: 'string', example: '10477373803-sol'),
+                new OA\Property(
+                    property: 'coords',
+                    properties: [
+                        new OA\Property(property: 'x', type: 'number', format: 'float'),
+                        new OA\Property(property: 'y', type: 'number', format: 'float'),
+                        new OA\Property(property: 'z', type: 'number', format: 'float'),
+                    ],
+                    type: 'object'
+                ),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(property: 'buy_price', type: 'integer', example: 44000),
+        new OA\Property(property: 'sell_price', type: 'integer', example: 47238),
+        new OA\Property(property: 'mean_price', type: 'integer', example: 47201),
+        new OA\Property(property: 'stock', type: 'integer', example: 1200),
+        new OA\Property(property: 'demand', type: 'integer', example: 14320),
+        new OA\Property(property: 'last_updated', type: 'string', format: 'date-time', nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'MarketTradeRoute',
+    properties: [
+        new OA\Property(
+            property: 'commodity',
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'gold'),
+                new OA\Property(property: 'display_name', type: 'string', example: 'Gold'),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(property: 'profit_per_unit', type: 'integer', example: 7821),
+        new OA\Property(property: 'buy_from', ref: '#/components/schemas/MarketCommodityListing'),
+        new OA\Property(property: 'sell_to', ref: '#/components/schemas/MarketCommodityListing'),
+    ]
+)]
 class StationSchema {}

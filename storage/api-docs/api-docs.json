@@ -729,6 +729,216 @@
                 ]
             }
         },
+        "/stations/search/commodity": {
+            "get": {
+                "tags": [
+                    "Market Search"
+                ],
+                "summary": "Find the best stations to buy from / sell to for a commodity",
+                "description": "Returns two ranked lists for the given commodity: stations selling it cheapest (best places to buy from) and stations paying the most for it (best places to sell to). Backed by a Redis inverted index updated live from EDDN. Optional location filtering constrains results to systems within the given distance of a reference system.",
+                "operationId": "d766d4b3c505e7de5097c3f81a50d23e",
+                "parameters": [
+                    {
+                        "name": "commodity",
+                        "in": "query",
+                        "description": "Commodity internal name (e.g. \"gold\", \"tritium\")",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "gold"
+                        }
+                    },
+                    {
+                        "name": "near_system",
+                        "in": "query",
+                        "description": "System slug to use as a location filter origin",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "10477373803-sol"
+                        }
+                    },
+                    {
+                        "name": "ly",
+                        "in": "query",
+                        "description": "Search radius in light years from near_system (default: 100, max: 5000)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "min_stock",
+                        "in": "query",
+                        "description": "Minimum stock to include on the buy side",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "min_demand",
+                        "in": "query",
+                        "description": "Minimum demand to include on the sell side",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum results per side (default: 20, max: 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Best buy-from and sell-to listings for the commodity",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "commodity": {
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "gold"
+                                                        },
+                                                        "display_name": {
+                                                            "type": "string",
+                                                            "example": "Gold"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "best_buy_from": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/MarketCommodityListing"
+                                                    }
+                                                },
+                                                "best_sell_to": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/MarketCommodityListing"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stations/search/trade-route": {
+            "get": {
+                "tags": [
+                    "Market Search"
+                ],
+                "summary": "Find profitable commodity trade routes",
+                "description": "For every commodity that has at least one buy and one sell station in the live index, pairs the cheapest buy station with the highest-paying sell station and returns the best routes by profit per unit. Optionally constrains both ends to systems within a given distance of a reference system. Results are cached for 5 minutes.",
+                "operationId": "b57247c9c0ade8ebdc0dfb1fb1d4f696",
+                "parameters": [
+                    {
+                        "name": "near_system",
+                        "in": "query",
+                        "description": "System slug to use as a location filter origin. When provided, both the buy and sell stations must be within `ly` of this system.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "10477373803-sol"
+                        }
+                    },
+                    {
+                        "name": "ly",
+                        "in": "query",
+                        "description": "Search radius in light years from near_system (default: 100, max: 5000)",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "min_stock",
+                        "in": "query",
+                        "description": "Minimum stock at the buy station (default: 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "min_demand",
+                        "in": "query",
+                        "description": "Minimum demand at the sell station (default: 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "min_profit",
+                        "in": "query",
+                        "description": "Minimum profit per unit (default: 1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1000
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum routes to return, sorted by profit (default: 20, max: 100)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trade routes ordered by profit per unit",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/MarketTradeRoute"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/systems/search/distance": {
             "get": {
                 "tags": [
@@ -1798,6 +2008,124 @@
                 },
                 "type": "object"
             },
+            "MarketCommodityListing": {
+                "properties": {
+                    "station": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Daedalus"
+                            },
+                            "type": {
+                                "type": "string",
+                                "example": "Orbis Starport"
+                            },
+                            "slug": {
+                                "type": "string",
+                                "example": "128016384-daedalus"
+                            },
+                            "distance_to_arrival": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 508
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "system": {
+                        "properties": {
+                            "id64": {
+                                "type": "integer",
+                                "example": 10477373803
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Sol"
+                            },
+                            "slug": {
+                                "type": "string",
+                                "example": "10477373803-sol"
+                            },
+                            "coords": {
+                                "properties": {
+                                    "x": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "y": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "z": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "buy_price": {
+                        "type": "integer",
+                        "example": 44000
+                    },
+                    "sell_price": {
+                        "type": "integer",
+                        "example": 47238
+                    },
+                    "mean_price": {
+                        "type": "integer",
+                        "example": 47201
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 1200
+                    },
+                    "demand": {
+                        "type": "integer",
+                        "example": 14320
+                    },
+                    "last_updated": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "MarketTradeRoute": {
+                "properties": {
+                    "commodity": {
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "example": "gold"
+                            },
+                            "display_name": {
+                                "type": "string",
+                                "example": "Gold"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "profit_per_unit": {
+                        "type": "integer",
+                        "example": 7821
+                    },
+                    "buy_from": {
+                        "$ref": "#/components/schemas/MarketCommodityListing"
+                    },
+                    "sell_to": {
+                        "$ref": "#/components/schemas/MarketCommodityListing"
+                    }
+                },
+                "type": "object"
+            },
             "SystemBody": {
                 "properties": {
                     "id": {
@@ -2233,6 +2561,10 @@
         {
             "name": "Galaxy",
             "description": "Galaxy"
+        },
+        {
+            "name": "Market Search",
+            "description": "Market Search"
         }
     ]
 }

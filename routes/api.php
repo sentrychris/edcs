@@ -7,6 +7,8 @@ use App\Http\Controllers\GalaxyController;
 use App\Http\Controllers\GalnetNewsController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\SanctumAuthController;
+use App\Http\Controllers\Search\MarketCommodityController;
+use App\Http\Controllers\Search\MarketTradeRouteController;
 use App\Http\Controllers\Search\SystemDistanceController;
 use App\Http\Controllers\Search\SystemInformationController;
 use App\Http\Controllers\Search\SystemNavRouteController;
@@ -105,6 +107,11 @@ Route::resource('bodies', SystemBodyController::class);
 */
 Route::prefix('stations')->group(function () {
     Route::get('{slug}/market', [MarketController::class, 'getMarketDataForStation']);
+
+    Route::prefix('search')->group(function () {
+        Route::get('commodity', MarketCommodityController::class);
+        Route::get('trade-route', MarketTradeRouteController::class);
+    });
 });
 
 Route::resource('stations', StationController::class);

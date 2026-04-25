@@ -54,6 +54,8 @@ class EddnMarketService extends EddnService
                             'prohibited' => $prohibited,
                             'last_updated' => now()->toISOString(),
                         ]));
+
+                        $this->updateCommodityIndex($system->id64, $station, $commodities);
                     }
                 }
             } catch (\Exception $e) {
@@ -61,6 +63,68 @@ class EddnMarketService extends EddnService
                 Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
                 DiscordAlert::eddn(self::class, $message.': '.$e->getMessage(), false);
             }
+        }
+    }
+
+    /**
+     * Maintain the per-commodity inverted index for trade-route searches.
+     *
+     * Keeps two sorted sets per commodity (one keyed by buy price, one by sell
+     * price) so the search endpoints can pull "lowest buy" / "highest sell" in
+     * O(log N), plus a per-station bookkeeping set used to prune commodities a
+     * station no longer trades.
+     *
+     * @param  array<int, array<string, mixed>>  $commodities
+     */
+    private function updateCommodityIndex(int $id64, string $station, array $commodities): void
+    {
+        $member = "{$id64}:{$station}";
+        $stationKey = "station:{$id64}:{$station}:commodities";
+
+        $previous = Redis::smembers($stationKey);
+        $current = [];
+
+        foreach ($commodities as $commodity) {
+            $name = $commodity['name'] ?? null;
+            if ($name === null) {
+                continue;
+            }
+
+            $buyPrice = (int) ($commodity['buyPrice'] ?? 0);
+            $sellPrice = (int) ($commodity['sellPrice'] ?? 0);
+            $stock = (int) ($commodity['stock'] ?? 0);
+            $demand = (int) ($commodity['demand'] ?? 0);
+
+            $tracked = false;
+
+            if ($buyPrice > 0 && $stock > 0) {
+                Redis::zadd("commodity:{$name}:buy", $buyPrice, $member);
+                $tracked = true;
+            } else {
+                Redis::zrem("commodity:{$name}:buy", $member);
+            }
+
+            if ($sellPrice > 0 && $demand > 0) {
+                Redis::zadd("commodity:{$name}:sell", $sellPrice, $member);
+                $tracked = true;
+            } else {
+                Redis::zrem("commodity:{$name}:sell", $member);
+            }
+
+            if ($tracked) {
+                $current[] = $name;
+                Redis::sadd('commodities:indexed', $name);
+            }
+        }
+
+        foreach (array_diff($previous, $current) as $name) {
+            Redis::zrem("commodity:{$name}:buy", $member);
+            Redis::zrem("commodity:{$name}:sell", $member);
+        }
+
+        Redis::del($stationKey);
+        if ($current !== []) {
+            Redis::sadd($stationKey, ...$current);
         }
     }
 }
