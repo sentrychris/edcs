@@ -20,6 +20,8 @@ class SystemController extends Controller
 {
     use HasQueryRelations;
 
+    private const CACHE_TTL = 300;
+
     /**
      * Constructor
      */
@@ -87,7 +89,7 @@ class SystemController extends Controller
                 ->appends($request->all());
         } else {
             // Retrieve from cache or query the database
-            $systems = Cache::remember("systems_page_{$page}", 3600, fn () => System::filter($validated, 0)
+            $systems = Cache::remember("systems_page_{$page}", self::CACHE_TTL, fn () => System::filter($validated, 0)
                 ->simplePaginate($limit)
                 ->appends($request->all())
             );
@@ -199,8 +201,8 @@ class SystemController extends Controller
             }
         }
 
-        // Cache the system details for 1 hour
-        Cache::set($cacheKey, $system, 3600);
+        // Cache the system details for 5 minutes
+        Cache::set($cacheKey, $system, self::CACHE_TTL);
 
         // Return the system resource
         return new SystemResource($system);
