@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ImportSystemsBodiesDumpFileJob;
 use App\Jobs\ImportSystemsDumpFileJob;
 use App\Services\JsonLargeFileSplitService;
 use Illuminate\Console\Command;
@@ -96,6 +97,9 @@ class ImportDumpFileCommand extends Command
             ImportSystemsDumpFileJob::dispatch('import:system', $filename)
                 ->onQueue('default');
             $this->info('Systems import job has been dispatched.');
+        } else if ($type === 'bodies') {
+            ImportSystemsBodiesDumpFileJob::dispatch('import:system', $filename)
+                ->onQueue('default');
         } else {
             $this->error('Type does not match a valid job type.');
         }
