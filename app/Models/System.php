@@ -6,6 +6,7 @@ use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -112,15 +113,19 @@ class System extends Model
     /**
      * Search for systems by distance.
      *
-     * Uses the indexed coords_x/y/z generated columns for a bounding-box
-     * pre-filter so MySQL can use the compound index instead of a full table
-     * scan. HAVING then refines to the exact sphere.
+     * Uses the indexed coords_x/y/z columns for a bounding-box pre-filter so
+     * MySQL can use the compound index instead of a full table scan. Squared
+     * distance then refines to the exact sphere without SQRT/POW on every
+     * candidate row.
      *
      * @param  array{x: float, y: float, z: float}  $coords  - the origin coordinates
      * @param  float  $distance  - the search radius in light years
      */
     public static function findNearest(array $coords, float $distance)
     {
+        $coords = self::normalizeCoords($coords);
+        $distanceSquaredSql = self::distanceSquaredSql();
+
         $selectRaw = <<<'SQL'
             id,
             id64,
@@ -130,19 +135,33 @@ class System extends Model
             coords_z,
             slug,
             updated_at,
-            SQRT(
-                POW(coords_x - ?, 2) +
-                POW(coords_y - ?, 2) +
-                POW(coords_z - ?, 2)
-            ) AS distance
+            %s AS distance_squared
         SQL;
 
-        return self::selectRaw($selectRaw, [$coords['x'], $coords['y'], $coords['z']])
-            ->whereBetween('coords_x', [$coords['x'] - $distance, $coords['x'] + $distance])
-            ->whereBetween('coords_y', [$coords['y'] - $distance, $coords['y'] + $distance])
-            ->whereBetween('coords_z', [$coords['z'] - $distance, $coords['z'] + $distance])
-            ->havingRaw('distance <= ?', [$distance])
-            ->orderByRaw('distance ASC');
+        return self::constrainWithinDistance(
+            self::selectRaw(sprintf($selectRaw, $distanceSquaredSql), self::distanceSquaredBindings($coords)),
+            $coords,
+            $distance,
+        )->orderBy('distance_squared');
+    }
+
+    /**
+     * Find system id64 values within a distance without sorting or projecting
+     * display data. This is used by endpoints that only need a membership set.
+     *
+     * @param  array{x: float, y: float, z: float}  $coords  - the origin coordinates
+     * @param  float  $distance  - the search radius in light years
+     * @return array<int, int>
+     */
+    public static function id64sWithinDistance(array $coords, float $distance): array
+    {
+        $coords = self::normalizeCoords($coords);
+
+        return self::constrainWithinDistance(
+            self::query()->select('id64'),
+            $coords,
+            $distance,
+        )->pluck('id64')->all();
     }
 
     /**
@@ -158,15 +177,35 @@ class System extends Model
      */
     public static function findNearestForRoute(array $coords, float $jumpRange): Collection
     {
-        return self::select(['id', 'coords_x', 'coords_y', 'coords_z'])
-            ->whereBetween('coords_x', [$coords['x'] - $jumpRange, $coords['x'] + $jumpRange])
-            ->whereBetween('coords_y', [$coords['y'] - $jumpRange, $coords['y'] + $jumpRange])
-            ->whereBetween('coords_z', [$coords['z'] - $jumpRange, $coords['z'] + $jumpRange])
-            ->whereRaw(
-                'SQRT(POW(coords_x - ?, 2) + POW(coords_y - ?, 2) + POW(coords_z - ?, 2)) <= ?',
-                [$coords['x'], $coords['y'], $coords['z'], $jumpRange],
-            )
-            ->get();
+        $coords = self::normalizeCoords($coords);
+
+        return self::constrainWithinDistance(
+            self::select(['id', 'coords_x', 'coords_y', 'coords_z']),
+            $coords,
+            $jumpRange,
+        )->get();
+    }
+
+    /**
+     * Resolve the virtual distance attribute from the query's squared distance.
+     *
+     * @return Attribute - calculated distance in light years
+     */
+    protected function distance(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, array $attributes): ?float {
+                if ($value !== null) {
+                    return (float) $value;
+                }
+
+                if (! array_key_exists('distance_squared', $attributes)) {
+                    return null;
+                }
+
+                return sqrt((float) $attributes['distance_squared']);
+            }
+        );
     }
 
     /**
@@ -193,5 +232,57 @@ class System extends Model
     private function getAttributeCacheKey(string $type)
     {
         return "system_{$this->id64}_{$type}";
+    }
+
+    /**
+     * @param  array{x: float, y: float, z: float}  $coords
+     * @return array{x: float, y: float, z: float}
+     */
+    private static function normalizeCoords(array $coords): array
+    {
+        return [
+            'x' => (float) $coords['x'],
+            'y' => (float) $coords['y'],
+            'z' => (float) $coords['z'],
+        ];
+    }
+
+    /**
+     * @param  array{x: float, y: float, z: float}  $coords
+     * @return array<int, float>
+     */
+    private static function distanceSquaredBindings(array $coords): array
+    {
+        return [
+            $coords['x'], $coords['x'],
+            $coords['y'], $coords['y'],
+            $coords['z'], $coords['z'],
+        ];
+    }
+
+    private static function distanceSquaredSql(): string
+    {
+        return <<<'SQL'
+            (
+                ((coords_x - ?) * (coords_x - ?)) +
+                ((coords_y - ?) * (coords_y - ?)) +
+                ((coords_z - ?) * (coords_z - ?))
+            )
+        SQL;
+    }
+
+    /**
+     * @param  array{x: float, y: float, z: float}  $coords
+     */
+    private static function constrainWithinDistance(Builder $builder, array $coords, float $distance): Builder
+    {
+        return $builder
+            ->whereBetween('coords_x', [$coords['x'] - $distance, $coords['x'] + $distance])
+            ->whereBetween('coords_y', [$coords['y'] - $distance, $coords['y'] + $distance])
+            ->whereBetween('coords_z', [$coords['z'] - $distance, $coords['z'] + $distance])
+            ->whereRaw(
+                self::distanceSquaredSql().' <= ?',
+                [...self::distanceSquaredBindings($coords), $distance * $distance],
+            );
     }
 }

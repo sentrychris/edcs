@@ -7,6 +7,7 @@
 /storage/*.key
 /storage/dumps
 /vendor
+.codex
 .env
 .env.backup
 .env.production

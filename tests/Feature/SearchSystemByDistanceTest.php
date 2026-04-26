@@ -53,11 +53,13 @@ class SearchSystemByDistanceTest extends TestCase
     {
         System::factory()->atCoords(0, 0, 0)->create();
         $far = System::factory()->atCoords(200, 0, 0)->create();
+        $outsideSphere = System::factory()->atCoords(40, 40, 0)->create();
 
         $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50');
 
         $response->assertOk();
         $response->assertJsonMissing(['name' => $far->name]);
+        $response->assertJsonMissing(['name' => $outsideSphere->name]);
     }
 
     public function test_results_are_ordered_by_distance(): void

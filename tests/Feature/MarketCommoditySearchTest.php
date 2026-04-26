@@ -109,15 +109,20 @@ class MarketCommoditySearchTest extends TestCase
     {
         $sol = System::factory()->create(['name' => 'Sol', 'coords_x' => 0, 'coords_y' => 0, 'coords_z' => 0]);
         $colonia = System::factory()->create(['name' => 'Colonia', 'coords_x' => 22000, 'coords_y' => 0, 'coords_z' => 0]);
+        $outsideSphere = System::factory()->create(['name' => 'Diagonal Far', 'coords_x' => 80, 'coords_y' => 80, 'coords_z' => 0]);
 
         $solStation = SystemStation::factory()->create(['system_id' => $sol->id, 'name' => 'NearStation']);
         $coloniaStation = SystemStation::factory()->create(['system_id' => $colonia->id, 'name' => 'FarStation']);
+        $outsideSphereStation = SystemStation::factory()->create(['system_id' => $outsideSphere->id, 'name' => 'OutsideSphereStation']);
 
         $this->indexStation($sol, $solStation, [
             ['name' => 'gold', 'buyPrice' => 40000, 'sellPrice' => 41000, 'stock' => 500, 'demand' => 100, 'meanPrice' => 40000],
         ]);
         $this->indexStation($colonia, $coloniaStation, [
             ['name' => 'gold', 'buyPrice' => 20000, 'sellPrice' => 80000, 'stock' => 500, 'demand' => 1000, 'meanPrice' => 40000],
+        ]);
+        $this->indexStation($outsideSphere, $outsideSphereStation, [
+            ['name' => 'gold', 'buyPrice' => 10000, 'sellPrice' => 90000, 'stock' => 500, 'demand' => 1000, 'meanPrice' => 40000],
         ]);
 
         $response = $this->getJson("/api/stations/search/commodity?commodity=gold&near_system={$sol->slug}&ly=100");

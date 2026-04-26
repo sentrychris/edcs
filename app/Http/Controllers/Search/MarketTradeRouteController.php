@@ -54,10 +54,10 @@ class MarketTradeRouteController extends Controller
             $nearSystemSlug = $request->input('near_system');
             $origin = System::whereSlug($nearSystemSlug)->firstOrFail();
             $ly = (float) $request->input('ly', 100);
-            $allowedSystemIds64 = System::findNearest(
+            $allowedSystemIds64 = System::id64sWithinDistance(
                 ['x' => $origin->coords_x, 'y' => $origin->coords_y, 'z' => $origin->coords_z],
                 $ly
-            )->pluck('id64')->all();
+            );
         }
 
         $cacheKey = sprintf(
