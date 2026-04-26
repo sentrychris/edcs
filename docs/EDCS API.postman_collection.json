@@ -8,264 +8,230 @@
   },
   "item": [
     {
-      "name": "_EDSM_TESTING",
-      "item": [
-        {
-          "name": "EDSM",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "https://www.edsm.net/api-system-v1/estimated-value?systemName=Sol&showInformation=1&showBodies=1&showCoordinates=1&showId=1",
-              "protocol": "https",
-              "host": [
-                "www",
-                "edsm",
-                "net"
-              ],
-              "path": [
-                "api-system-v1",
-                "estimated-value"
-              ],
-              "query": [
-                {
-                  "key": "systemName",
-                  "value": "Sol"
-                },
-                {
-                  "key": "showInformation",
-                  "value": "1"
-                },
-                {
-                  "key": "showBodies",
-                  "value": "1"
-                },
-                {
-                  "key": "showCoordinates",
-                  "value": "1"
-                },
-                {
-                  "key": "showId",
-                  "value": "1"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "Auth",
       "item": [
+        {
+          "name": "Sanctum",
+          "item": [
+            {
+              "name": "/auth/register",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"CMDR Example\",\n  \"email\": \"cmdr@example.com\",\n  \"password\": \"password\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{url}}/auth/register",
+                  "host": ["{{url}}"],
+                  "path": ["auth", "register"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "/auth/login",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"cmdr@example.com\",\n  \"password\": \"password\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{url}}/auth/login",
+                  "host": ["{{url}}"],
+                  "path": ["auth", "login"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "/auth/logout",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                "url": {
+                  "raw": "{{url}}/auth/logout",
+                  "host": ["{{url}}"],
+                  "path": ["auth", "logout"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "/auth/me",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                "url": {
+                  "raw": "{{url}}/auth/me",
+                  "host": ["{{url}}"],
+                  "path": ["auth", "me"]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Sanctum token-based auth for direct API or admin access."
+        },
         {
           "name": "Frontier",
           "item": [
             {
-              "name": "CAPI",
-              "item": [
-                {
-                  "name": "/frontier/capi/profile",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer uyJ7N9GSTTfu6a80jcjLcPG57Lz7FdFnACFsXOxd8841979a",
-                        "type": "text"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{url}}/frontier/capi/profile",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "frontier",
-                        "capi",
-                        "profile"
-                      ]
-                    }
-                  },
-                  "response": []
-                },
-                {
-                  "name": "/frontier/capi/journal",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer uyJ7N9GSTTfu6a80jcjLcPG57Lz7FdFnACFsXOxd8841979a",
-                        "type": "text"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{url}}/frontier/capi/journal",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "frontier",
-                        "capi",
-                        "journal"
-                      ]
-                    }
-                  },
-                  "response": []
-                }
-              ]
-            },
-            {
               "name": "/auth/frontier/login",
               "request": {
+                "auth": { "type": "noauth" },
                 "method": "GET",
                 "header": [],
                 "url": {
                   "raw": "{{url}}/auth/frontier/login",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "frontier",
-                    "login"
-                  ]
-                }
+                  "host": ["{{url}}"],
+                  "path": ["auth", "frontier", "login"]
+                },
+                "description": "Returns the Frontier OAuth authorization URL and PKCE parameters. The frontend redirects the user to the authorization_url."
               },
               "response": []
             },
             {
               "name": "/auth/frontier/callback",
               "request": {
+                "auth": { "type": "noauth" },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{url}}/auth/frontier/callback?code=7ba61769-70ed-4a4a-b140-1fe9829f2966&code_verifier=dFg5Vp9jqOkU8s2_S1_Qtnamn4Y6_RL1mUc2DoE8wJY",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "auth",
-                    "frontier",
-                    "callback"
-                  ],
+                  "raw": "{{url}}/auth/frontier/callback?code=AUTH_CODE&state=STATE_STRING",
+                  "host": ["{{url}}"],
+                  "path": ["auth", "frontier", "callback"],
                   "query": [
                     {
                       "key": "code",
-                      "value": "7ba61769-70ed-4a4a-b140-1fe9829f2966"
+                      "value": "AUTH_CODE",
+                      "description": "Authorization grant code returned by Frontier"
                     },
                     {
-                      "key": "code_verifier",
-                      "value": "dFg5Vp9jqOkU8s2_S1_Qtnamn4Y6_RL1mUc2DoE8wJY"
+                      "key": "state",
+                      "value": "STATE_STRING",
+                      "description": "State string originally sent in the authorization request — used to retrieve the cached code verifier"
                     }
                   ]
-                }
+                },
+                "description": "Frontier redirects here after the user approves. Exchanges the code for tokens, upserts the user and commander, issues a Sanctum token, and redirects to the frontend with the cmdr_token HttpOnly cookie."
               },
               "response": []
+            },
+            {
+              "name": "/auth/frontier/me",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/auth/frontier/me",
+                  "host": ["{{url}}"],
+                  "path": ["auth", "frontier", "me"]
+                },
+                "description": "Called by the frontend immediately after the OAuth callback. Reads the cmdr_token HttpOnly cookie to identify the user and returns their user and commander data alongside the plain-text Sanctum token for NextAuth to store in its session."
+              },
+              "response": []
+            },
+            {
+              "name": "CAPI",
+              "item": [
+                {
+                  "name": "/frontier/capi/profile",
+                  "request": {
+                    "method": "GET",
+                    "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                    "url": {
+                      "raw": "{{url}}/frontier/capi/profile",
+                      "host": ["{{url}}"],
+                      "path": ["frontier", "capi", "profile"]
+                    },
+                    "description": "Fetches the live commander profile from Frontier CAPI and updates the stored commander record. Automatically refreshes the Frontier access token if it has expired."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "/frontier/capi/journal",
+                  "request": {
+                    "method": "GET",
+                    "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                    "url": {
+                      "raw": "{{url}}/frontier/capi/journal",
+                      "host": ["{{url}}"],
+                      "path": ["frontier", "capi", "journal"],
+                      "query": [
+                        {
+                          "key": "year",
+                          "value": "2025",
+                          "description": "Journal year (optional — omit for today)",
+                          "disabled": true
+                        },
+                        {
+                          "key": "month",
+                          "value": "04",
+                          "description": "Journal month (optional)",
+                          "disabled": true
+                        },
+                        {
+                          "key": "day",
+                          "value": "26",
+                          "description": "Journal day (optional)",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Returns the commander's journal entries for the given date (or today if no date is provided). Automatically refreshes the Frontier access token if expired."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "/frontier/capi/communitygoals",
+                  "request": {
+                    "method": "GET",
+                    "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+                    "url": {
+                      "raw": "{{url}}/frontier/capi/communitygoals",
+                      "host": ["{{url}}"],
+                      "path": ["frontier", "capi", "communitygoals"]
+                    },
+                    "description": "Returns all currently active community goals and any contributions from this commander."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Frontier Companion API endpoints. All require a valid Sanctum token. The Frontier access token is resolved and refreshed automatically server-side."
             }
-          ]
+          ],
+          "description": "Frontier OAuth2 PKCE flow and CAPI proxy endpoints."
         }
       ]
     },
     {
-      "name": "Galnet",
+      "name": "Commander",
       "item": [
         {
-          "name": "galnet/news",
+          "name": "/commander",
           "request": {
-            "auth": {
-              "type": "noauth"
+            "method": "PUT",
+            "header": [{ "key": "Accept", "value": "application/json", "type": "text" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inara_api_key\": \"your-inara-key\",\n  \"edsm_api_key\": \"your-edsm-key\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{url}}/galnet/news",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "galnet",
-                "news"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "galnet/news/:slug",
-          "request": {
-            "auth": {
-              "type": "noauth"
+              "raw": "{{url}}/commander",
+              "host": ["{{url}}"],
+              "path": ["commander"]
             },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/galnet/news/16-aug-3310-the-assault-on-thor",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "galnet",
-                "news",
-                "16-aug-3310-the-assault-on-thor"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "galnet/news/:id",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/galnet/news/1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "galnet",
-                "news",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "description": "GalNet news"
-    },
-    {
-      "name": "Statistics",
-      "item": [
-        {
-          "name": "statistics",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/statistics?resetCache=1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "statistics"
-              ],
-              "query": [
-                {
-                  "key": "resetCache",
-                  "value": "1",
-                  "description": "Refresh the cached statistics"
-                }
-              ]
-            }
+            "description": "Updates the authenticated commander's third-party API keys. Both fields are optional and nullable."
           },
           "response": []
         }
@@ -277,32 +243,14 @@
         {
           "name": "/systems",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/systems?withBodies=1&withStations=1&withInformation=1&name=Sol&exactSearch=1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "systems"
-              ],
+              "raw": "{{url}}/systems?name=Sol&exactSearch=1&withBodies=1&withStations=1&withInformation=1",
+              "host": ["{{url}}"],
+              "path": ["systems"],
               "query": [
-                {
-                  "key": "withBodies",
-                  "value": "1",
-                  "description": "Include celestial bodies data with systems"
-                },
-                {
-                  "key": "withStations",
-                  "value": "1",
-                  "description": "Include stations data with systems"
-                },
-                {
-                  "key": "withInformation",
-                  "value": "1",
-                  "description": "Include extra system information e.g. population, allegiance"
-                },
                 {
                   "key": "name",
                   "value": "Sol",
@@ -311,12 +259,27 @@
                 {
                   "key": "exactSearch",
                   "value": "1",
-                  "description": "Filter using exact search term"
+                  "description": "Exact name match (default: partial)"
+                },
+                {
+                  "key": "withBodies",
+                  "value": "1",
+                  "description": "Include celestial bodies"
+                },
+                {
+                  "key": "withStations",
+                  "value": "1",
+                  "description": "Include stations"
+                },
+                {
+                  "key": "withInformation",
+                  "value": "1",
+                  "description": "Include system information (population, allegiance, etc.)"
                 },
                 {
                   "key": "limit",
-                  "value": "1",
-                  "description": "Limit results",
+                  "value": "10",
+                  "description": "Result limit",
                   "disabled": true
                 }
               ]
@@ -326,89 +289,86 @@
         },
         {
           "name": "/systems/:slug",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{url}}/systems/10477373803-sol?withInformation=1&withBodies=1&withStations=1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "systems",
-                "10477373803-sol"
-              ],
+              "host": ["{{url}}"],
+              "path": ["systems", "10477373803-sol"],
               "query": [
                 {
                   "key": "withInformation",
                   "value": "1",
-                  "description": "Include extra system information e.g. population, allegiance"
+                  "description": "Include system information"
                 },
                 {
                   "key": "withBodies",
                   "value": "1",
-                  "description": "Include celestial bodies data with system"
+                  "description": "Include celestial bodies"
                 },
                 {
                   "key": "withStations",
                   "value": "1",
-                  "description": "Include stations data with system"
+                  "description": "Include stations"
                 }
               ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "description": "Galaxy systems"
-    },
-    {
-      "name": "System",
-      "item": [
-        {
-          "name": "/systems/id64s",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/systems/id64s",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "system",
-                "id64s"
-              ]
-            }
+            },
+            "description": "Slug format: {id64}-{kebab-name}, e.g. 10477373803-sol"
           },
           "response": []
         },
         {
           "name": "/systems/last-updated",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{url}}/systems/last-updated",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "system",
-                "last-updated"
+              "host": ["{{url}}"],
+              "path": ["systems", "last-updated"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/systems/search/information",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/systems/search/information?population=5000000000&security=high&government=Dictato&withInformation=1&withBodies=1",
+              "host": ["{{url}}"],
+              "path": ["systems", "search", "information"],
+              "query": [
+                {
+                  "key": "population",
+                  "value": "5000000000",
+                  "description": "Minimum population"
+                },
+                {
+                  "key": "security",
+                  "value": "high",
+                  "description": "Security level (high / medium / low)"
+                },
+                {
+                  "key": "government",
+                  "value": "Dictato",
+                  "description": "Government type (partial match)"
+                },
+                {
+                  "key": "withInformation",
+                  "value": "1",
+                  "description": "Include system information"
+                },
+                {
+                  "key": "withBodies",
+                  "value": "1",
+                  "description": "Include celestial bodies"
+                }
               ]
             }
           },
@@ -417,39 +377,18 @@
         {
           "name": "/systems/search/distance",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{url}}/systems/search/distance?x=0.00&y=0&z=0&ly=100",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "system",
-                "search",
-                "distance"
-              ],
+              "host": ["{{url}}"],
+              "path": ["systems", "search", "distance"],
               "query": [
-                {
-                  "key": "x",
-                  "value": "0.00",
-                  "description": "The system's x-coordinate"
-                },
-                {
-                  "key": "y",
-                  "value": "0",
-                  "description": "The system's y-coordinate"
-                },
-                {
-                  "key": "z",
-                  "value": "0",
-                  "description": "The system's z-coordinate"
-                },
-                {
-                  "key": "ly",
-                  "value": "100",
-                  "description": "The distance in LY"
-                }
+                { "key": "x", "value": "0.00", "description": "X coordinate" },
+                { "key": "y", "value": "0", "description": "Y coordinate" },
+                { "key": "z", "value": "0", "description": "Z coordinate" },
+                { "key": "ly", "value": "100", "description": "Radius in light years" }
               ]
             }
           },
@@ -458,28 +397,23 @@
         {
           "name": "/systems/search/route",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{url}}/systems/search/route?from=8216113749-maia&to=670685668665-pleiades-sector-ag-n-b7-0&ly=40",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "system",
-                "search",
-                "route"
-              ],
+              "host": ["{{url}}"],
+              "path": ["systems", "search", "route"],
               "query": [
                 {
                   "key": "from",
                   "value": "8216113749-maia",
-                  "description": "The origin system slug (<id64>_<name>)"
+                  "description": "Origin system slug ({id64}-{name})"
                 },
                 {
                   "key": "to",
                   "value": "670685668665-pleiades-sector-ag-n-b7-0",
-                  "description": "The destination system slug (<id64>_<name>)"
+                  "description": "Destination system slug ({id64}-{name})"
                 },
                 {
                   "key": "ly",
@@ -490,80 +424,32 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "/systems/search/information",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{url}}/systems/search/information?population=5000000000&security=high&government=Dictato&withInformation=1&withBodies=1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "system",
-                "search",
-                "information"
-              ],
-              "query": [
-                {
-                  "key": "population",
-                  "value": "5000000000",
-                  "description": "System population level"
-                },
-                {
-                  "key": "security",
-                  "value": "high",
-                  "description": "System security level"
-                },
-                {
-                  "key": "government",
-                  "value": "Dictato",
-                  "description": "System governance"
-                },
-                {
-                  "key": "withInformation",
-                  "value": "1",
-                  "description": "Include extra system information e.g. population, allegiance"
-                },
-                {
-                  "key": "withBodies",
-                  "value": "1",
-                  "description": "Include celestial bodies data with system"
-                }
-              ]
-            }
-          },
-          "response": []
         }
-      ]
+      ],
+      "description": "Galaxy systems"
     },
     {
       "name": "Bodies",
       "item": [
         {
-          "name": "/body/:slug",
+          "name": "/bodies/:slug",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{url}}/bodies/108086401534265707-earth?withSystem=1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "bodies",
-                "108086401534265707-earth"
-              ],
+              "host": ["{{url}}"],
+              "path": ["bodies", "108086401534265707-earth"],
               "query": [
                 {
                   "key": "withSystem",
                   "value": "1",
-                  "description": "Include systems data with celestial body"
+                  "description": "Include parent system data"
                 }
               ]
-            }
+            },
+            "description": "Slug format: {id64}-{kebab-name}, e.g. 108086401534265707-earth"
           },
           "response": []
         }
@@ -574,39 +460,131 @@
       "item": [
         {
           "name": "/stations/:slug",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.collectionVariables.set(\r",
-                  "    \"stationSlug\",\r",
-                  "    \"128017408-li-qing-jao\"\r",
-                  ");"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{url}}/stations/128016384-daedalus?withSystem=1",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "stations",
-                "128016384-daedalus"
-              ],
+              "host": ["{{url}}"],
+              "path": ["stations", "128016384-daedalus"],
               "query": [
                 {
                   "key": "withSystem",
                   "value": "1",
-                  "description": "Include systems data with station"
+                  "description": "Include parent system data"
+                }
+              ]
+            },
+            "description": "Slug format: {market_id}-{kebab-name}, e.g. 128016384-daedalus"
+          },
+          "response": []
+        },
+        {
+          "name": "/stations/:slug/market",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/stations/128016384-daedalus/market",
+              "host": ["{{url}}"],
+              "path": ["stations", "128016384-daedalus", "market"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/stations/search/commodity",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/stations/search/commodity?commodity=Gold&min_stock=100&limit=20",
+              "host": ["{{url}}"],
+              "path": ["stations", "search", "commodity"],
+              "query": [
+                {
+                  "key": "commodity",
+                  "value": "Gold",
+                  "description": "Commodity name to search for"
+                },
+                {
+                  "key": "min_stock",
+                  "value": "100",
+                  "description": "Minimum stock level"
+                },
+                {
+                  "key": "min_demand",
+                  "value": "100",
+                  "description": "Minimum demand level",
+                  "disabled": true
+                },
+                {
+                  "key": "near_system",
+                  "value": "10477373803-sol",
+                  "description": "Filter by proximity to this system slug",
+                  "disabled": true
+                },
+                {
+                  "key": "ly",
+                  "value": "100",
+                  "description": "Radius in LY when near_system is set",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Result limit (default: 20)"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/stations/search/trade-route",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/stations/search/trade-route?min_profit=1000&min_stock=1&min_demand=1&limit=20",
+              "host": ["{{url}}"],
+              "path": ["stations", "search", "trade-route"],
+              "query": [
+                {
+                  "key": "min_profit",
+                  "value": "1000",
+                  "description": "Minimum profit per unit in credits (default: 1000)"
+                },
+                {
+                  "key": "min_stock",
+                  "value": "1",
+                  "description": "Minimum stock at the buy station (default: 1)"
+                },
+                {
+                  "key": "min_demand",
+                  "value": "1",
+                  "description": "Minimum demand at the sell station (default: 1)"
+                },
+                {
+                  "key": "near_system",
+                  "value": "10477373803-sol",
+                  "description": "Restrict results to stations within ly of this system slug",
+                  "disabled": true
+                },
+                {
+                  "key": "ly",
+                  "value": "100",
+                  "description": "Radius in LY when near_system is set (default: 100)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Result limit (default: 20)"
                 }
               ]
             }
@@ -614,26 +592,95 @@
           "response": []
         }
       ],
-      "description": "Galaxy systems"
+      "description": "Stations and market data"
     },
     {
-      "name": "Station",
+      "name": "Galnet",
       "item": [
         {
-          "name": "/stations/:slug/market",
+          "name": "/galnet/news",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/stations/128016384-daedalus/market",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "stations",
-                "128016384-daedalus",
-                "market"
+              "raw": "{{url}}/galnet/news",
+              "host": ["{{url}}"],
+              "path": ["galnet", "news"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/galnet/news/:slug",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/galnet/news/16-aug-3310-the-assault-on-thor",
+              "host": ["{{url}}"],
+              "path": ["galnet", "news", "16-aug-3310-the-assault-on-thor"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/galnet/news/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/galnet/news/1",
+              "host": ["{{url}}"],
+              "path": ["galnet", "news", "1"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "GalNet news"
+    },
+    {
+      "name": "Statistics",
+      "item": [
+        {
+          "name": "/statistics",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/statistics",
+              "host": ["{{url}}"],
+              "path": ["statistics"],
+              "query": [
+                {
+                  "key": "resetCache",
+                  "value": "1",
+                  "description": "Flush and rebuild the statistics cache",
+                  "disabled": true
+                }
               ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Galaxy",
+      "item": [
+        {
+          "name": "/galaxy/manifest",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/galaxy/manifest",
+              "host": ["{{url}}"],
+              "path": ["galaxy", "manifest"]
             }
           },
           "response": []
@@ -646,7 +693,7 @@
     "bearer": [
       {
         "key": "token",
-        "value": "",
+        "value": "{{token}}",
         "type": "string"
       }
     ]
@@ -657,9 +704,7 @@
       "script": {
         "type": "text/javascript",
         "requests": {},
-        "exec": [
-          ""
-        ]
+        "exec": [""]
       }
     },
     {
@@ -667,9 +712,7 @@
       "script": {
         "type": "text/javascript",
         "requests": {},
-        "exec": [
-          ""
-        ]
+        "exec": [""]
       }
     }
   ],
@@ -677,6 +720,11 @@
     {
       "key": "url",
       "value": "http://localhost/api"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "description": "Sanctum personal access token — paste the plainTextToken value returned from /auth/login or the frontier callback"
     }
   ]
 }
