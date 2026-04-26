@@ -1,6 +1,6 @@
 <?php
 
-if (!function_exists('formatSystemUpdateTime')) {
+if (! function_exists('formatSystemUpdateTime')) {
     /**
      * Get update time according to various 3rd party formats.
      */

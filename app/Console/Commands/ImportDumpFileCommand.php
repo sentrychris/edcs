@@ -97,7 +97,7 @@ class ImportDumpFileCommand extends Command
             ImportSystemsDumpFileJob::dispatch('import:system', $filename)
                 ->onQueue('default');
             $this->info('Systems import job has been dispatched.');
-        } else if ($type === 'bodies') {
+        } elseif ($type === 'bodies') {
             ImportSystemsBodiesDumpFileJob::dispatch('import:system', $filename)
                 ->onQueue('default');
         } else {

@@ -125,7 +125,7 @@ class FrontierCApiController extends Controller
         $goals = $this->frontierCApiService->getCommunityGoals($user);
 
         return response()->json([
-            'data' => $goals
+            'data' => $goals,
         ]);
     }
 }

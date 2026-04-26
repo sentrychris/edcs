@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+# Prefer Sail if Docker is running and the container is up, otherwise use PHP directly.
+if [ -f "vendor/bin/sail" ] && docker info >/dev/null 2>&1 && vendor/bin/sail ps 2>/dev/null | grep -q "Up"; then
+    ARTISAN="vendor/bin/sail artisan"
+    PINT="vendor/bin/sail bin pint"
+else
+    ARTISAN="php artisan"
+    PINT="./vendor/bin/pint"
+fi
+
+echo "Running code style check..."
+if ! $PINT --test; then
+    echo ""
+    echo "Code style issues found. Fix them before committing:"
+    echo "  vendor/bin/sail bin pint    # with Sail"
+    echo "  ./vendor/bin/pint           # without Sail"
+    exit 1
+fi
+
+echo "Running tests..."
+if ! $ARTISAN test --compact; then
+    echo ""
+    echo "Tests failed. Fix them before committing."
+    exit 1
+fi

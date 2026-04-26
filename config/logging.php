@@ -100,6 +100,12 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'footprint' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/footprint.log'),
+            'level' => 'info',
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
