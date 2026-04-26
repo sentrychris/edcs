@@ -147,7 +147,8 @@ class FrontierAuthService
      */
     public function confirmUser(mixed $frontierProfile, object $auth): User
     {
-        $email = $frontierProfile->usr->customer_id.'@versyx.net';
+        $customerId = $frontierProfile->usr->customer_id;
+        $email = "{$customerId}@versyx.net";
 
         $tokenData = [
             'access_token' => $auth->access_token,
@@ -155,25 +156,15 @@ class FrontierAuthService
             'token_expires_at' => now()->addSeconds($auth->expires_in),
         ];
 
-        $user = User::whereEmail($email)->first();
+        $user = User::firstOrCreate(
+            ['email' => $email],
+            ['name' => $customerId, 'password' => bcrypt(Str::random(32))]
+        );
 
-        if (! $user) {
-            $user = User::create([
-                'name' => $frontierProfile->usr->customer_id,
-                'email' => $email,
-                'password' => bcrypt(Str::random(32)),
-            ]);
-
-            $user->frontierUser()->create(array_merge([
-                'frontier_id' => $frontierProfile->usr->customer_id,
-            ], $tokenData));
-        } elseif ($user->frontierUser) {
-            $user->frontierUser()->update($tokenData);
-        } else {
-            $user->frontierUser()->create(array_merge([
-                'frontier_id' => $frontierProfile->usr->customer_id,
-            ], $tokenData));
-        }
+        $user->frontierUser()->updateOrCreate(
+            ['frontier_id' => $customerId],
+            $tokenData
+        );
 
         $this->cacheToken($user->id, $auth->access_token, $auth->expires_in);
 
