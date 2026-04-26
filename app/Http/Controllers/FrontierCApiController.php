@@ -92,10 +92,40 @@ class FrontierCApiController extends Controller
         $user = $request->user();
         $journal = $this->frontierCApiService->getJournal($user, $year, $month, $day);
 
-        dd($journal);
-
         return response()->json([
             'data' => $journal,
+        ]);
+    }
+
+    /**
+     * Get commander profile.
+     */
+    #[OA\Get(
+        path: '/frontier/capi/communitygoals',
+        summary: 'Get the authenticated commander community goals from Frontier CAPI',
+        description: 'Fetches the live commander community goals from the Frontier Companion API.',
+        security: [['sanctum' => []]],
+        tags: ['Frontier CAPI'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Commander community goals',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'object', description: 'Commander community goals from Frontier CAPI'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function communityGoals(Request $request)
+    {
+        $user = $request->user();
+        $goals = $this->frontierCApiService->getCommunityGoals($user);
+
+        return response()->json([
+            'data' => $goals
         ]);
     }
 }

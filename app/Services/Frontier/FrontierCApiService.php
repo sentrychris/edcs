@@ -107,7 +107,7 @@ class FrontierCApiService
     /**
      * Get the user's journal logs from CAPI.
      *
-     * @return mixed
+     * @return array
      */
     public function getJournal(User $user, mixed $year = '', mixed $month = '', mixed $day = '')
     {
@@ -137,14 +137,39 @@ class FrontierCApiService
                 }
             }
 
-            // TODO figure out what to do with the data.
-            dd($decoded);
-
             return $decoded;
         } catch (Exception $e) {
             Log::error($e->getMessage());
 
-            return null;
+            return [];
+        }
+    }
+    
+    /**
+     * Get the user's active community goals.
+     * 
+     * @param User $user
+     * @return array
+     */
+    public function getCommunityGoals(User $user)
+    {
+        try {
+            $uri = '/communitygoals';
+
+            $response = $this->client->request('GET', $uri, [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$this->getFrontierToken($user),
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
+
+            $content = $response->getBody()->getContents();
+
+            return $content ? json_decode($content) : [];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+
+            return [];
         }
     }
 

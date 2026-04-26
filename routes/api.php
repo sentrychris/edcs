@@ -60,6 +60,7 @@ Route::middleware('auth:sanctum')->prefix('frontier')->group(function () {
     Route::prefix('capi')->group(function () {
         Route::get('profile', [FrontierCApiController::class, 'profile']);
         Route::get('journal', [FrontierCApiController::class, 'journal']);
+        Route::get('communitygoals', [FrontierCApiController::class, 'communityGoals']);
     });
 });
 
