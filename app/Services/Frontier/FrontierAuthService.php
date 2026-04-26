@@ -16,11 +16,6 @@ class FrontierAuthService
 {
     protected Client $client;
 
-    /**
-     * APIManager constructor.
-     *
-     * @param  string|null  $server
-     */
     public function __construct()
     {
         $this->client = new Client([
@@ -34,21 +29,16 @@ class FrontierAuthService
     /**
      * Generate the authorization details for the Frontier auth server.
      *
-     * @return array - the authorization details
+     * @return array{authorization_url: string, code_verifier: string}
      */
     public function getAuthorizationServerInformation(): array
     {
-        // Generate the oauth code verifier, challenge and state parameter
         $codeVerifier = $this->generateCodeVerifier();
         $codeChallenge = $this->generateCodeChallenge($codeVerifier);
         $oauthState = Str::random(32);
 
-        // Cache the code verifier for 1 minute, use the oauth state in the key
-        // so that we can compare it with the oauth state we receive from the
-        // Frontier callback request
         Cache::put("frontier_cv_{$oauthState}", $codeVerifier, 60);
 
-        // Construct the oauth URL
         $url = config('elite.frontier.auth.url').'/auth';
         $url .= '?audience=frontier,steam,epic';
         $url .= '&response_type=code';
@@ -66,24 +56,17 @@ class FrontierAuthService
     }
 
     /**
-     * Callback method for Frontier auth.
+     * Exchange the authorization code for tokens.
      *
-     * This method is called when the Frontier auth server redirects back to the application,
-     * it retrieves the authorization code and exchanges it for an access token.
-     *
-     * @param  Request  $request  - the request object
-     * @return mixed - the response
+     * @param  Request  $request  - the callback request from Frontier
+     * @return object{access_token: string, refresh_token: string, token_type: string, expires_in: int}
      */
-    public function authorize(Request $request): mixed
+    public function authorize(Request $request): object
     {
-        // Get the auth details from the request
         $code = $request->input('code');
         $oauthState = $request->input('state');
-
-        // Retrieve the code verifier from the cache based on the oauth state
         $codeVerifier = Cache::get("frontier_cv_{$oauthState}");
 
-        // Use it to obtain a valid access token
         $response = $this->client->request('POST', '/token', [
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
@@ -101,12 +84,48 @@ class FrontierAuthService
     }
 
     /**
+     * Use a refresh token to obtain a new access token.
+     *
+     * Frontier returns a new access_token, refresh_token, and expires_in.
+     * Updates the user's frontier_user record and Redis cache.
+     *
+     * @param  User  $user  - the user whose token should be refreshed
+     * @return string - the new access token
+     */
+    public function refreshToken(User $user): string
+    {
+        $frontierUser = $user->frontierUser;
+
+        $response = $this->client->request('POST', '/token', [
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'client_id' => config('elite.frontier.auth.client_id'),
+                'refresh_token' => $frontierUser->refresh_token,
+            ],
+        ]);
+
+        $auth = json_decode($response->getBody()->getContents());
+
+        $frontierUser->update([
+            'access_token' => $auth->access_token,
+            'refresh_token' => $auth->refresh_token,
+            'token_expires_at' => now()->addSeconds($auth->expires_in),
+        ]);
+
+        $this->cacheToken($user->id, $auth->access_token, $auth->expires_in);
+
+        return $auth->access_token;
+    }
+
+    /**
      * Decode the token to retrieve the user profile.
      *
      * @param  string  $token  - the access token
-     * @return mixed - the user profile
      */
-    public function decode(string $token)
+    public function decode(string $token): object
     {
         $response = $this->client->request('GET', '/decode', [
             'headers' => [
@@ -119,55 +138,65 @@ class FrontierAuthService
     }
 
     /**
-     *  Confirm the user.
+     * Confirm the user exists in our database, creating them if needed.
      *
-     * @param  mixed  $frontierProfile  - the user details from the decoded token
-     * @param  string  $accessToken  - the access token
-     * @return User - the user model
+     * Persists the access token, refresh token, and expiry from the full auth response.
+     *
+     * @param  mixed  $frontierProfile  - the decoded Frontier profile
+     * @param  object  $auth  - the full token response from Frontier
      */
-    public function confirmUser(mixed $frontierProfile, string $accessToken): User
+    public function confirmUser(mixed $frontierProfile, object $auth): User
     {
         $email = $frontierProfile->usr->customer_id.'@versyx.net';
+
+        $tokenData = [
+            'access_token' => $auth->access_token,
+            'refresh_token' => $auth->refresh_token,
+            'token_expires_at' => now()->addSeconds($auth->expires_in),
+        ];
+
         $user = User::whereEmail($email)->first();
 
         if (! $user) {
-            // If the user does not exist, create a new user
             $user = User::create([
                 'name' => $frontierProfile->usr->customer_id,
                 'email' => $email,
                 'password' => bcrypt(Str::random(32)),
             ]);
 
-            // Create a new associated Frontier user
-            $user->frontierUser()->create([
+            $user->frontierUser()->create(array_merge([
                 'frontier_id' => $frontierProfile->usr->customer_id,
-                'access_token' => $accessToken,
-            ]);
-        }
-
-        if ($user->frontierUser) {
-            // Update the Frontier user's access token
-            $user->frontierUser()->update([
-                'access_token' => $accessToken,
-            ]);
+            ], $tokenData));
+        } elseif ($user->frontierUser) {
+            $user->frontierUser()->update($tokenData);
         } else {
-            // Just in case the user does exist but does not have an associated Frontier user
-            $user->frontierUser()->create([
+            $user->frontierUser()->create(array_merge([
                 'frontier_id' => $frontierProfile->usr->customer_id,
-                'access_token' => $accessToken,
-            ]);
+            ], $tokenData));
         }
 
-        Redis::set("user_{$user->id}_frontier_token", $accessToken, 'EX', 3600 * 3);
+        $this->cacheToken($user->id, $auth->access_token, $auth->expires_in);
 
         return $user;
     }
 
     /**
-     * Generate query string for oauth scopes.
+     * Cache the access token in Redis with a TTL slightly shorter than its actual expiry.
      *
-     * @param  array  $scopes  - the scopes to attach
-     * @return string - the query string
+     * @param  int  $userId  - the user ID to scope the cache key
+     * @param  string  $token  - the access token
+     * @param  int  $expiresIn  - seconds until the token expires
+     */
+    public function cacheToken(int $userId, string $token, int $expiresIn): void
+    {
+        // Cache 5 minutes less than the real expiry so a Redis miss triggers
+        // a DB check while the token is still technically valid.
+        $ttl = max($expiresIn - 300, 60);
+        Redis::set("user_{$userId}_frontier_token", $token, 'EX', $ttl);
+    }
+
+    /**
+     * Generate query string for oauth scopes.
      */
     private function attachAuthorizationScopes(array $scopes): string
     {
@@ -184,22 +213,11 @@ class FrontierAuthService
         return $query;
     }
 
-    /**
-     * Generate a secure random string for the code verifier.
-     *
-     * @return string - the code verifier
-     */
     private function generateCodeVerifier(): string
     {
         return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
     }
 
-    /**
-     * Generate the code challenge from the code verifier.
-     *
-     * @param  string  $codeVerifier  - the code verifier
-     * @return string - the code challenge
-     */
     private function generateCodeChallenge(string $codeVerifier): string
     {
         return rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');

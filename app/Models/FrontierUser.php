@@ -12,6 +12,18 @@ class FrontierUser extends Model
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'token_expires_at' => 'datetime',
+        ];
+    }
+
+    public function isTokenExpired(): bool
+    {
+        return ! $this->token_expires_at || $this->token_expires_at->isPast();
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

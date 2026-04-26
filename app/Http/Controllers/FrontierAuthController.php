@@ -106,7 +106,7 @@ class FrontierAuthController extends Controller
         $frontier = $this->frontierAuthService->decode($auth->access_token);
 
         // Confirm the user, creates a new user record in our db if they do not exist
-        $user = $this->frontierAuthService->confirmUser($frontier, $auth->access_token);
+        $user = $this->frontierAuthService->confirmUser($frontier, $auth);
 
         // Confirm the CMDR, creates a new CMDR record in our db if they do not exist
         $this->frontierCApiService->confirmCommander($user);

@@ -17,12 +17,7 @@ class FrontierCApiService
 {
     protected Client $client;
 
-    /**
-     * APIManager constructor.
-     *
-     * @param  string|null  $server
-     */
-    public function __construct()
+    public function __construct(protected FrontierAuthService $frontierAuthService)
     {
         $this->client = new Client([
             'headers' => [
@@ -35,10 +30,9 @@ class FrontierCApiService
     /**
      * Get the commander's profile information.
      *
-     * @param  string  $token  - the access token
-     * @return mixed - the user profile
+     * @return object|null
      */
-    public function getCommanderProfile(User $user)
+    public function getCommanderProfile(User $user): mixed
     {
         try {
             $response = $this->client->request('GET', '/profile', [
@@ -58,18 +52,14 @@ class FrontierCApiService
 
     /**
      * Confirm the user's commander profile.
-     *
-     * @param  User  $user  - the user model
      */
     public function confirmCommander(User $user): mixed
     {
-        // Get the commander profile
         $profile = $this->getCommanderProfile($user);
         if (! property_isset($profile, 'commander')) {
             throw new Exception('Commander profile not found.');
         }
 
-        // Update or create the user's commander profile
         $commander = $profile->commander;
         $user->commander()->updateOrCreate([
             'cmdr_name' => $commander->name,
@@ -83,7 +73,6 @@ class FrontierCApiService
             'rank' => json_encode($commander->rank),
         ]);
 
-        // Check the commander's last system and add to our records if it does not exist
         if (property_isset($profile, 'lastSystem')) {
             $lastSystem = $profile->lastSystem;
             $system = System::whereId64($lastSystem->id)
@@ -91,11 +80,9 @@ class FrontierCApiService
                 ->first();
 
             if (! $system) {
-                // Resolve EDSM API service from the container to update the system data
                 $system = app(EdsmSystemService::class)->updateSystem($lastSystem->name);
             }
 
-            // Update the commander's last system
             $user->commander()->update([
                 'last_system_id64' => $system->id64,
             ]);
@@ -106,10 +93,8 @@ class FrontierCApiService
 
     /**
      * Get the user's journal logs from CAPI.
-     *
-     * @return array
      */
-    public function getJournal(User $user, mixed $year = '', mixed $month = '', mixed $day = '')
+    public function getJournal(User $user, mixed $year = '', mixed $month = '', mixed $day = ''): array
     {
         try {
             $uri = '/journal'
@@ -125,14 +110,11 @@ class FrontierCApiService
             ]);
 
             $content = $response->getBody()->getContents();
-
-            // Split the string by newlines (or any other delimiter)
             $jsonObjects = preg_split('/\r\n|\r|\n/', $content);
 
-            // Decode each JSON object separately
             $decoded = [];
             foreach ($jsonObjects as $json) {
-                if (! empty(trim($json))) {  // Make sure to skip empty lines
+                if (! empty(trim($json))) {
                     $decoded[] = json_decode($json, true);
                 }
             }
@@ -144,19 +126,14 @@ class FrontierCApiService
             return [];
         }
     }
-    
+
     /**
      * Get the user's active community goals.
-     * 
-     * @param User $user
-     * @return array
      */
-    public function getCommunityGoals(User $user)
+    public function getCommunityGoals(User $user): array
     {
         try {
-            $uri = '/communitygoals';
-
-            $response = $this->client->request('GET', $uri, [
+            $response = $this->client->request('GET', '/communitygoals', [
                 'headers' => [
                     'Authorization' => 'Bearer '.$this->getFrontierToken($user),
                     'Content-Type' => 'application/json',
@@ -174,13 +151,28 @@ class FrontierCApiService
     }
 
     /**
-     * Get the user's Frontier token.
+     * Resolve the Frontier access token for the given user.
      *
-     * We use BFF to proxy auth between the frontend and Frontier, through the backend. So we
-     * need to get the sanctum-authenticated user's Frontier token to make requests to CAPI.
+     * Checks Redis first. On a cache miss, falls back to the DB record.
+     * If the stored token is expired (or missing), exchanges the refresh
+     * token for a new access token before returning.
      */
     private function getFrontierToken(User $user): string
     {
-        return Redis::get("user_{$user->id}_frontier_token");
+        $cached = Redis::get("user_{$user->id}_frontier_token");
+        if ($cached) {
+            return $cached;
+        }
+
+        $frontierUser = $user->frontierUser;
+
+        if ($frontierUser && $frontierUser->access_token && ! $frontierUser->isTokenExpired()) {
+            $ttl = max(now()->diffInSeconds($frontierUser->token_expires_at) - 300, 60);
+            Redis::set("user_{$user->id}_frontier_token", $frontierUser->access_token, 'EX', $ttl);
+
+            return $frontierUser->access_token;
+        }
+
+        return $this->frontierAuthService->refreshToken($user);
     }
 }
