@@ -55,7 +55,7 @@ class SanctumAuthController extends Controller
         return response()->json([
             'name' => $user->name,
             'token' => $token,
-            'expiry' => (config('sanctum.expiration') * 60),
+            'expiry' => config('sanctum.expiration') ? config('sanctum.expiration') * 60 : null,
         ]);
     }
 
@@ -105,7 +105,7 @@ class SanctumAuthController extends Controller
         return response()->json([
             'name' => $user->name,
             'token' => $token,
-            'expiry' => (config('sanctum.expiration') * 60),
+            'expiry' => config('sanctum.expiration') ? config('sanctum.expiration') * 60 : null,
         ]);
     }
 

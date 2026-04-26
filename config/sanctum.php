@@ -49,7 +49,9 @@ return [
     |
     */
 
-    'expiration' => 60,
+    // null = tokens don't expire in the DB; session lifetime is controlled by NextAuth (30-day JWT).
+    // Each Frontier login revokes the previous token, so there's no accumulation risk.
+    'expiration' => null,
 
     /*
     |--------------------------------------------------------------------------
