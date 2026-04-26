@@ -2,6 +2,7 @@
 
 namespace App\Services\Frontier;
 
+use App\Exceptions\FrontierReauthorizationRequiredException;
 use App\Models\System;
 use App\Models\User;
 use App\Services\Edsm\EdsmSystemService;
@@ -43,6 +44,8 @@ class FrontierCApiService
             ]);
 
             return json_decode($response->getBody()->getContents());
+        } catch (FrontierReauthorizationRequiredException $e) {
+            throw $e;
         } catch (Exception $e) {
             Log::error($e->getMessage());
 
@@ -120,6 +123,8 @@ class FrontierCApiService
             }
 
             return $decoded;
+        } catch (FrontierReauthorizationRequiredException $e) {
+            throw $e;
         } catch (Exception $e) {
             Log::error($e->getMessage());
 
@@ -143,6 +148,8 @@ class FrontierCApiService
             $content = $response->getBody()->getContents();
 
             return $content ? json_decode($content) : [];
+        } catch (FrontierReauthorizationRequiredException $e) {
+            throw $e;
         } catch (Exception $e) {
             Log::error($e->getMessage());
 

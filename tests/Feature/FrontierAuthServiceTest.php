@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\FrontierReauthorizationRequiredException;
 use App\Models\FrontierUser;
 use App\Models\User;
 use App\Services\Frontier\FrontierAuthService;
@@ -147,5 +148,20 @@ class FrontierAuthServiceTest extends TestCase
         $service->refreshToken($user->fresh(['frontierUser']));
 
         $this->assertEquals('fresh-token', Redis::get("user_{$user->id}_frontier_token"));
+    }
+
+    public function test_refresh_token_throws_reauth_exception_when_frontier_returns_401(): void
+    {
+        $user = User::factory()->create();
+        FrontierUser::factory()->expired()->create(['user_id' => $user->id]);
+
+        $handler = new MockHandler([new Response(401, [], '{"message":"JWT expired"}')]);
+        $client = new Client(['handler' => HandlerStack::create($handler)]);
+
+        $service = $this->makeService($client);
+
+        $this->expectException(FrontierReauthorizationRequiredException::class);
+
+        $service->refreshToken($user->fresh(['frontierUser']));
     }
 }

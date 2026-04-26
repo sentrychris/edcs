@@ -2,8 +2,10 @@
 
 namespace App\Services\Frontier;
 
+use App\Exceptions\FrontierReauthorizationRequiredException;
 use App\Models\User;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
@@ -96,16 +98,25 @@ class FrontierAuthService
     {
         $frontierUser = $user->frontierUser;
 
-        $response = $this->client->request('POST', '/token', [
-            'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
-            ],
-            'form_params' => [
-                'grant_type' => 'refresh_token',
-                'client_id' => config('elite.frontier.auth.client_id'),
-                'refresh_token' => $frontierUser->refresh_token,
-            ],
-        ]);
+        try {
+            $response = $this->client->request('POST', '/token', [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ],
+                'form_params' => [
+                    'grant_type' => 'refresh_token',
+                    'client_id' => config('elite.frontier.auth.client_id'),
+                    'refresh_token' => $frontierUser->refresh_token,
+                ],
+            ]);
+        } catch (ClientException $e) {
+            // Frontier returns 401 when the refresh token has expired (25-day limit)
+            // or when the user has revoked the application's access.
+            if ($e->getResponse()->getStatusCode() === 401) {
+                throw new FrontierReauthorizationRequiredException;
+            }
+            throw $e;
+        }
 
         $auth = json_decode($response->getBody()->getContents());
 
