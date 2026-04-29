@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CommanderController;
 use App\Http\Controllers\DataDownloadController;
 use App\Http\Controllers\FrontierAuthController;
@@ -132,6 +133,17 @@ Route::get('statistics', StatisticsController::class);
 */
 Route::prefix('galnet')->group(function () {
     Route::resource('news', GalnetNewsController::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| /bookmarks routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:sanctum')->prefix('bookmarks')->name('bookmarks.')->group(function () {
+    Route::get('/', [BookmarkController::class, 'index'])->name('index');
+    Route::post('/', [BookmarkController::class, 'store'])->name('store');
+    Route::delete('{slug}', [BookmarkController::class, 'destroy'])->name('destroy');
 });
 
 /*

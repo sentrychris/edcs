@@ -23,6 +23,10 @@ class SystemResource extends JsonResource
             'bodies' => $this->whenLoaded('bodies'),
             'stations' => SystemStationResource::collection($this->whenLoaded('stations')),
             'fleet_carriers' => FleetCarrierResource::collection($this->whenLoaded('fleetCarriers')),
+            'is_bookmarked' => $this->when(
+                $request->user() !== null,
+                fn (): bool => $request->user()->hasBookmarked($this->resource),
+            ),
             'updated_at' => $this->updated_at,
             'slug' => $this->slug,
         ];

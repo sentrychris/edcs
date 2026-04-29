@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i 's|\"./field-guide-types\"|\"../lib/field-guide-types\"|g' /home/chris/workspace/edcs-app/app/learning/components/field-guide-module-page.tsx /home/chris/workspace/edcs-app/app/learning/components/field-guide-topic-page.tsx)",
+      "Bash(sed -i 's|\"../components/field-guide-types\"|\"../lib/field-guide-types\"|g' /home/chris/workspace/edcs-app/app/learning/engineering-materials/data.ts /home/chris/workspace/edcs-app/app/learning/stations-infrastructure/data.ts /home/chris/workspace/edcs-app/app/learning/thargoids-guardians/data.ts /home/chris/workspace/edcs-app/app/learning/market-economy/data.ts)"
+    ]
+  }
+}

@@ -4,9 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -64,5 +66,34 @@ class User extends Authenticatable
     public function commander(): HasOne
     {
         return $this->hasOne(Commander::class);
+    }
+
+    /**
+     * Get the bookmarked systems belonging to the user
+     */
+    public function bookmarkedSystems(): BelongsToMany
+    {
+        return $this->belongsToMany(System::class, 'users_bookmarked_systems')
+            ->withTimestamps();
+    }
+
+    /**
+     * Determine if the user has bookmarked the given system.
+     *
+     * Memoizes the bookmarked system IDs on the user instance so that callers
+     * iterating over a collection of systems (e.g. SystemResource::collection)
+     * do not trigger one query per row.
+     */
+    public function hasBookmarked(System $system): bool
+    {
+        return $this->bookmarkedSystemIds()->contains($system->id);
+    }
+
+    /**
+     * @return Collection<int, int>
+     */
+    private function bookmarkedSystemIds(): Collection
+    {
+        return once(fn () => $this->bookmarkedSystems()->pluck('systems.id'));
     }
 }
