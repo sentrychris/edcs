@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Console\Commands\BuildDataDumpCommand;
+use App\Exceptions\FrontierReauthorizationRequiredException;
+use App\Services\Frontier\FrontierCApiService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DataDownloadController extends Controller
 {
+    public function __construct(private readonly FrontierCApiService $frontierCApiService) {}
+
     /**
      * Dump manifest.
      */
@@ -55,11 +61,11 @@ class DataDownloadController extends Controller
             ];
         }
 
-        return response()->json($manifest);
+        return response()->json(['data' => $manifest]);
     }
 
     /**
-     * Download a dump file.
+     * Download a bulk dump file.
      */
     #[OA\Get(
         path: '/downloads/{type}',
@@ -112,6 +118,46 @@ class DataDownloadController extends Controller
 
         return response()->download($path, "{$type}.json.gz", [
             'Content-Type' => 'application/gzip',
+        ]);
+    }
+
+    /**
+     * Download a live commander profile snapshot from the Frontier CAPI.
+     */
+    #[OA\Get(
+        path: '/downloads/commander',
+        summary: 'Download your commander profile snapshot',
+        description: 'Fetches a live snapshot of the authenticated commander\'s profile from the Frontier Companion API and streams it as a downloadable JSON file. Requires an active Frontier session.',
+        security: [['sanctum' => []]],
+        tags: ['Data Downloads'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Commander profile JSON download',
+                content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(type: 'string', format: 'binary'))
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated or Frontier session expired'),
+            new OA\Response(response: 503, description: 'Frontier CAPI unavailable'),
+        ]
+    )]
+    public function commander(Request $request): StreamedResponse|JsonResponse
+    {
+        try {
+            $profile = $this->frontierCApiService->confirmCommander($request->user());
+        } catch (FrontierReauthorizationRequiredException) {
+            return response()->json(['message' => 'Frontier session expired. Please re-authenticate.'], 401);
+        } catch (\Exception) {
+            return response()->json(['message' => 'Unable to fetch profile from Frontier CAPI.'], 503);
+        }
+
+        if (! $profile) {
+            return response()->json(['message' => 'Unable to fetch profile from Frontier CAPI.'], 503);
+        }
+
+        return response()->streamDownload(function () use ($profile) {
+            echo json_encode($profile, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }, 'commander-profile.json', [
+            'Content-Type' => 'application/json',
         ]);
     }
 }

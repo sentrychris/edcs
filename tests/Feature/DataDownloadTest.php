@@ -36,7 +36,7 @@ class DataDownloadTest extends TestCase
         $response = $this->getJson('/api/downloads/manifest');
 
         $response->assertOk();
-        $response->assertJsonStructure(array_fill_keys(BuildDataDumpCommand::TYPES, ['available', 'size', 'built_at']));
+        $response->assertJsonStructure(['data' => array_fill_keys(BuildDataDumpCommand::TYPES, ['available', 'size', 'built_at'])]);
     }
 
     public function test_manifest_shows_unavailable_when_no_dumps_exist(): void
@@ -46,9 +46,9 @@ class DataDownloadTest extends TestCase
         $response->assertOk();
 
         foreach (BuildDataDumpCommand::TYPES as $type) {
-            $response->assertJsonPath("{$type}.available", false);
-            $response->assertJsonPath("{$type}.size", null);
-            $response->assertJsonPath("{$type}.built_at", null);
+            $response->assertJsonPath("data.{$type}.available", false);
+            $response->assertJsonPath("data.{$type}.size", null);
+            $response->assertJsonPath("data.{$type}.built_at", null);
         }
     }
 
@@ -61,9 +61,9 @@ class DataDownloadTest extends TestCase
         $response = $this->getJson('/api/downloads/manifest');
 
         $response->assertOk();
-        $response->assertJsonPath("{$type}.available", true);
-        $this->assertNotNull($response->json("{$type}.size"));
-        $this->assertNotNull($response->json("{$type}.built_at"));
+        $response->assertJsonPath("data.{$type}.available", true);
+        $this->assertNotNull($response->json("data.{$type}.size"));
+        $this->assertNotNull($response->json("data.{$type}.built_at"));
     }
 
     public function test_download_returns_404_for_unknown_type(): void

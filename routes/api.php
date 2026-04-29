@@ -141,5 +141,6 @@ Route::prefix('galnet')->group(function () {
 */
 Route::prefix('downloads')->name('downloads.')->group(function () {
     Route::get('manifest', [DataDownloadController::class, 'manifest'])->name('manifest');
+    Route::middleware('auth:sanctum')->get('commander', [DataDownloadController::class, 'commander'])->name('commander');
     Route::get('{type}', [DataDownloadController::class, 'download'])->name('download');
 });
