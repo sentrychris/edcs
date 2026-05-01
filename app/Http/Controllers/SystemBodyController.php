@@ -21,6 +21,16 @@ class SystemBodyController extends Controller
         $this->setQueryRelations([
             'withSystem' => 'system',
             'withStations' => 'system.stations',
+            'withBodies' => ['system.bodies' => fn ($query) => $query->select(
+                'id',
+                'system_id',
+                'body_id',
+                'name',
+                'slug',
+                'type',
+                'sub_type',
+                'distance_to_arrival',
+            )],
         ]);
     }
 
@@ -47,6 +57,7 @@ class SystemBodyController extends Controller
             ),
             new OA\Parameter(name: 'withSystem', in: 'query', required: false, description: 'Embed the parent system', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
             new OA\Parameter(name: 'withStations', in: 'query', required: false, description: 'Embed the parent system\'s stations', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withBodies', in: 'query', required: false, description: 'Embed sibling bodies in the parent system (slim listing)', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
         ],
         responses: [
             new OA\Response(

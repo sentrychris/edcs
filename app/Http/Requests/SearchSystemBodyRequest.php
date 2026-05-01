@@ -19,6 +19,7 @@ class SearchSystemBodyRequest extends ApiRequest
             'type' => 'sometimes|string',
             'withSystem' => 'sometimes|int|max:1',
             'withStations' => 'sometimes|int|max:1',
+            'withBodies' => 'sometimes|int|max:1',
         ];
     }
 }

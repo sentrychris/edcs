@@ -105,6 +105,20 @@ class SystemBodyShowTest extends TestCase
         $this->assertContains($station->name, $stationNames);
     }
 
+    public function test_loads_sibling_bodies_via_system_when_requested(): void
+    {
+        $system = System::factory()->create();
+        $body = SystemBody::factory()->create(['system_id' => $system->id]);
+        $sibling = SystemBody::factory()->create(['system_id' => $system->id]);
+
+        $response = $this->getJson("/api/bodies/{$body->slug}?withSystem=1&withBodies=1");
+
+        $response->assertOk();
+        $bodyNames = collect($response->json('data.system.bodies'))->pluck('name')->all();
+        $this->assertContains($sibling->name, $bodyNames);
+        $this->assertContains($body->name, $bodyNames);
+    }
+
     public function test_returns_correct_body_data(): void
     {
         $body = SystemBody::factory()->create([
